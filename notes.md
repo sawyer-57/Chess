@@ -1,0 +1,1 @@
+Hi this is my notes.md file for CS240
