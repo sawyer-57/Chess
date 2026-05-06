@@ -223,7 +223,26 @@ public class ChessPiece {
             return moves;                
         }
 
-        
+        //KING MOVES 
+        else if (piece.getPieceType() == PieceType.KING) {
+            int row = myPosition.getRow(); 
+            int col = myPosition.getColumn();
+            Collection<ChessMove> moves = new Collection<ChessMove> ();
+
+            int[][] directions = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
+            for (int[] direction : directions) {
+                int newRow = row + direction[0];
+                int newCol = col + direction[1];
+                if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                    ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                    ChessPiece target = board.getPiece(newPosition);
+                    if (target == null || target.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+            }   
+            return moves; 
+        }
 
 
         
