@@ -141,6 +141,90 @@ public class ChessPiece {
             return moves;            
         }
 
+        //QUEEN MOVES 
+        else if (piece.getPieceType() == PieceType.QUEEN) {
+            //up
+            int row = myPosition.getRow()+1;
+            int col = myPosition.getColumn();
+            Collection<ChessMove> moves = new Collection<ChessMove> ();
+            while (row < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+            }
+            //down
+            row = myPosition.getRow()-1;
+            col = myPosition.getColumn();
+            while (row >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+            }
+            //right
+            row = myPosition.getRow();
+            col = myPosition.getColumn()+1;
+            while (col < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                col++;
+            }
+            //left
+            row = myPosition.getRow();
+            col = myPosition.getColumn()-1; 
+            while (col >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                col--;
+            }
+            //up right diagonal
+            row = myPosition.getRow()+1;
+            col = myPosition.getColumn()+1;
+            while (row < 8 && col < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+                col++;
+            }
+            //up left diagonal
+            row = myPosition.getRow()+1;
+            col = myPosition.getColumn()-1;
+            while (row < 8 && col >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+                col--;
+            }
+            //down right diagonal
+            row = myPosition.getRow()-1;
+            col = myPosition.getColumn()+1;
+            while (row >= 0 && col < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+                col++;
+            }
+            //down left diagonal
+            row = myPosition.getRow()-1;
+            col = myPosition.getColumn()-1;
+            while (row >= 0 && col >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+                col--;
+            }
+            return moves;                
+        }
+
+        
+
 
         
     }
