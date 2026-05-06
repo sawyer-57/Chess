@@ -11,7 +11,12 @@ import java.util.List;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -30,14 +35,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
@@ -48,6 +53,53 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        ChessPiece piece = board.getPiece(myPosition);
+        if (piece.getPieceType() == PieceType.BISHOP) {
+            //up right diagonal 
+            int row = myPosition.getRow()+1;
+            int col = myPosition.getColumn()+1;
+            Collection<ChessMove> moves = new Collection<ChessMove> (); 
+            while (row < 8 && col < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+                col++;
+            }
+            //up left diagonal 
+            row = myPosition.getRow()+1;
+            col = myPosition.getColumn()-1;
+            while (row < 8 && col >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+                col--;
+            }
+            //down right diagonal
+            row = myPosition.getRow()-1;
+            col = myPosition.getColumn()+1;
+            while (row >= 0 && col < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+                col++;
+            }
+            //down left diagonal
+            row = myPosition.getRow()-1;
+            col = myPosition.getColumn()-1;
+            while (row >= 0 && col >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+                col--;
+            }
+            return moves;
+        }
+        
+    }
         return List.of();
     }
 }
