@@ -244,7 +244,25 @@ public class ChessPiece {
             return moves; 
         }
 
-
+        //KNIGHT MOVES 
+        else if (piece.getPieceType() == PieceType.KNIGHT) {
+            int row = myPosition.getRow(); 
+            int col = myPosition.getColumn(); 
+            Collection<ChessMove> moves = new Collection<ChessMove> ();
+            int[][] directions = {{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}};
+            for (int[] direction : directions) {
+                int newRow = row + direction[0];
+                int newCol = col + direction[1];
+                if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                    ChessPosition newPosition = new ChessPosition(newRow, newCol); 
+                    ChessPiece target = board.getPiece(newPosition);
+                    if (target == null || target.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+            }
+            return moves;
+        }
         
     }
         return List.of();
