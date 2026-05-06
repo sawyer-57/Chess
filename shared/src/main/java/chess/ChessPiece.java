@@ -54,6 +54,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
+        //BISHOP MOVES
         if (piece.getPieceType() == PieceType.BISHOP) {
             //up right diagonal 
             int row = myPosition.getRow()+1;
@@ -98,6 +99,49 @@ public class ChessPiece {
             }
             return moves;
         }
+
+        //ROOK MOVES 
+        else if (piece.getPieceType() == PieceType.ROOK) {
+            //up 
+            int row = myPosition.getRow()+1; 
+            int col = myPosition.getColumn();
+            Collection<ChessMove> moves = new Collection<ChessMove> ();
+            while (row < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row++;
+            }
+            //down
+            row = myPosition.getRow()-1;
+            while (row >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                row--;
+            }
+            //right
+            row = myPosition.getRow();
+            col = myPosition.getColumn()+1;
+            while (col < 8) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                col++;
+            }
+            //left
+            row = myPosition.getRow();
+            col = myPosition.getColumn()-1; 
+            while (col >= 0) {
+                ChessPosition newPosition = new ChessPosition(row, col);
+                if (board.getPiece(newPosition) != null) break; 
+                moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+                col--;
+            }
+            return moves;            
+        }
+
+
         
     }
         return List.of();
