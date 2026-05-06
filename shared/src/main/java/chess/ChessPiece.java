@@ -433,7 +433,6 @@ public class ChessPiece {
             return moves;
         }
         
-    }
         return List.of();
     }
 }
