@@ -386,11 +386,11 @@ public class ChessPiece {
 
             int direction = (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
             // Move forward
-            int newRow = row + direction;
-            if (newRow >= 1 && newRow <= 8) {
-                ChessPosition newPosition = new ChessPosition(newRow, col);
+            int forwardRow = row + direction;
+            if (forwardRow >= 1 && forwardRow <= 8) {
+                ChessPosition newPosition = new ChessPosition(forwardRow, col);
                 if (board.getPiece(newPosition) == null) {
-                    if (newRow == 8 || newRow == 1) {
+                    if (forwardRow == 8 || forwardRow == 1) {
                         moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
                         moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
                         moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
@@ -413,13 +413,13 @@ public class ChessPiece {
             // Captures
             int[][] capturedirs = {{direction, 1}, {direction, -1}};
             for (int[] dir : capturedirs) {
-                int newRow = row + dir[0];
-                int newCol = col + dir[1];
-                if (newRow >= 1 && newRow <= 8 && newCol >= 1 && newCol <= 8) {
-                    ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                int captureRow = row + dir[0];
+                int captureCol = col + dir[1];
+                if (captureRow >= 1 && captureRow <= 8 && captureCol >= 1 && captureCol <= 8) {
+                    ChessPosition newPosition = new ChessPosition(captureRow, captureCol);
                     ChessPiece target = board.getPiece(newPosition);
                     if (target != null && target.getTeamColor() != piece.getTeamColor()) {
-                        if (newRow == 8 || newRow == 1) {
+                        if (captureRow == 8 || captureRow == 1) {
                             moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
                             moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
                             moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
