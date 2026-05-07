@@ -39,7 +39,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        board = new ChessPiece[8][8];
+        squares = new ChessPiece[8][8];
         //WHITE PIECES
         // Pawns
         for (int col = 1; col <= 8; col++) {
@@ -83,11 +83,11 @@ public class ChessBoard {
 
         ChessBoard other = (ChessBoard) obj;
 
-        return java.util.Arrays.deepEquals(board, other.board);
+        return java.util.Arrays.deepEquals(squares, other.squares);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Arrays.deepHashCode(board);
+        return java.util.Arrays.deepHashCode(squares);
     }   
 }
