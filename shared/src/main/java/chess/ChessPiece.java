@@ -435,4 +435,24 @@ public class ChessPiece {
         
         return List.of();
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        ChessPiece other = (ChessPiece) obj;
+
+        return pieceColor == other.pieceColor &&
+           type == other.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(pieceColor, type);
+    }
 }
