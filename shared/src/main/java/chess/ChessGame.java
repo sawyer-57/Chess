@@ -213,4 +213,22 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
+    @Override 
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; 
+        }
+        ChessGame other = (ChessGame) obj; 
+
+        return java.util.Objects.equals(board, other.board) && teamTurn == other.teamTurn; 
+    }
+
+    @Override 
+    public int hashCode() {
+        return java.util.Objects.hash(board, teamTurn); 
+    }
 }
