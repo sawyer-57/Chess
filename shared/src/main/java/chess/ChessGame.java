@@ -161,6 +161,7 @@ public class ChessGame {
                     //is there a valid move to escape? 
                     if (!moves.isEmpty()) {
                         return false;
+                    }    
                 }
             }
         }
