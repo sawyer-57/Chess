@@ -36,6 +36,23 @@ public class Server {
         javalin.post("/game", handler::createGame);
         javalin.put("/game", handler::joinGame);
         javalin.delete("/db", handler::clear);
+
+        javalin.exception(Exception.class, (e, ctx) -> {
+            ctx.status(500);
+            ctx.json(new model.ErrorResponse("Error: " + e.getMessage()));
+        });
+        javalin.exception(UnauthorizedException.class, (e, ctx) -> {
+            ctx.status(401);
+            ctx.json(new model.ErrorResponse("Error: unauthorized"));
+        });
+        javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
+            ctx.status(403);
+            ctx.json(new model.ErrorResponse("Error: already taken"));
+        });
+        javalin.exception(InvalidMoveException.class, (e, ctx) -> {
+            ctx.status(400);
+            ctx.json(new model.ErrorResponse("Error: bad request"));
+        });
     }
 
     public int run(int desiredPort) {
