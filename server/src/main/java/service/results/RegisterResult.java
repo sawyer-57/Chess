@@ -1,4 +1,4 @@
-package service;
+package service.results;
 
 public record RegisterResult(
         String username,
