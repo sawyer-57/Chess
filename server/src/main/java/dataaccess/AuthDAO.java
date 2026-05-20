@@ -1,5 +1,8 @@
 package dataaccess;
 
+import model.AuthData;
+import exception.DataAccessException;
+
 public interface AuthDAO {
 
     void createAuth(AuthData auth)

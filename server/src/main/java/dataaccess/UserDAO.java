@@ -1,5 +1,8 @@
 package dataaccess;
 
+import model.UserData; 
+import exception.DataAccessException;
+
 public interface UserDAO {
 
     void createUser(UserData user)

@@ -19,15 +19,11 @@ public class Server {
 
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-        SessionService sessionService = new SessionService(userDAO, authDAO);
-        DatabaseService databaseService = new DatabaseService(userDAO, gameDAO, authDAO);
 
         
         ChessHandler handler = new ChessHandler(
             userService,
-            gameService,
-            sessionService,
-            databaseService
+            gameService
         );
 
         javalin.post("/user", handler::register);
@@ -49,10 +45,6 @@ public class Server {
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
             ctx.status(403);
             ctx.json(new model.ErrorResponse("Error: already taken"));
-        });
-        javalin.exception(InvalidMoveException.class, (e, ctx) -> {
-            ctx.status(400);
-            ctx.json(new model.ErrorResponse("Error: bad request"));
         });
     }
 

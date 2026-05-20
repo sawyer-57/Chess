@@ -13,18 +13,12 @@ public class ChessHandler {
 
     private final UserService userService;
     private final GameService gameService;
-    private final SessionService sessionService;
-    private final DatabaseService databaseService;
 
     public ChessHandler(UserService userService,
-                        GameService gameService,
-                        SessionService sessionService,
-                        DatabaseService databaseService) {
+                        GameService gameService) {
 
         this.userService = userService;
         this.gameService = gameService;
-        this.sessionService = sessionService;
-        this.databaseService = databaseService;
     }
 
     public Object register(Context ctx) throws Exception {
@@ -32,10 +26,10 @@ public class ChessHandler {
         RegisterRequest request =
                 gson.fromJson(ctx.body(), RegisterRequest.class);
 
-        RegisterResponse response =
+        RegisterResult result =
                 userService.register(request);
 
-        return response;
+        return result;
     }
 
     public Object login(Context ctx) throws Exception {
@@ -43,10 +37,10 @@ public class ChessHandler {
         LoginRequest request =
                 gson.fromJson(ctx.body(), LoginRequest.class);
 
-        LoginResponse response =
+        LoginResult result =
                 userService.login(request);
 
-        return response;
+        return result;
     }
 
     public Object logout(Context ctx) throws Exception {
@@ -55,7 +49,7 @@ public class ChessHandler {
 
         LogoutRequest request = new LogoutRequest(authToken);
 
-        sessionService.logout(request);
+        userService.logout(request);
 
         return new EmptyResponse();
     }
@@ -66,10 +60,10 @@ public class ChessHandler {
 
         ListGamesRequest request = new ListGamesRequest(authToken);
 
-        ListGamesResponse response =
+        ListGamesResult result =
                 gameService.listGames(request);
 
-        return response;
+        return result;
     }
 
     public Object createGame(Context ctx) throws Exception {
@@ -81,10 +75,10 @@ public class ChessHandler {
 
         request = new CreateGameRequest(authToken, request.gameName());
 
-        CreateGameResponse response =
+        CreateGameResult result =
                 gameService.createGame(request);
 
-        return response;
+        return result;
     }
 
     public Object joinGame(Context ctx) throws Exception {
@@ -102,7 +96,7 @@ public class ChessHandler {
 
         gameService.joinGame(request);
 
-        return new EmptyResponse();
+        return new Object();
     }
 
     public Object clear(Context ctx) throws Exception {
