@@ -1,6 +1,7 @@
 package server;
 
-import io.javalin.*;
+import io.javalin.Javalin;
+import server.handlers.ChessHandler;
 import service.*;
 import dataaccess.*;
 

@@ -1,11 +1,11 @@
-package server;
+package server.handlers;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
 
 import service.*;
-import request.*;
-import response.*;
+import service.requests.*;
+import service.results.*;
 
 public class ChessHandler {
 
