@@ -33,7 +33,6 @@ public class ChessHandler {
                 userService.register(request);
 
         ctx.json(result);
-        return null; 
     }
 
     public void login(Context ctx) throws Exception {
@@ -45,7 +44,6 @@ public class ChessHandler {
                 userService.login(request);
 
         ctx.json(result);
-        return null; 
     }
 
     public void logout(Context ctx) throws Exception {
@@ -57,7 +55,6 @@ public class ChessHandler {
         userService.logout(request);
 
         ctx.status(200);
-        return null; 
     }
 
     public void listGames(Context ctx) throws Exception {
@@ -70,7 +67,6 @@ public class ChessHandler {
                 gameService.listGames(request);
 
         ctx.json(result);
-        return null; 
     }
 
     public void createGame(Context ctx) throws Exception {
@@ -86,7 +82,6 @@ public class ChessHandler {
                 gameService.createGame(request);
 
         ctx.json(result);
-        return null; 
     }
 
     public void joinGame(Context ctx) throws Exception {
@@ -105,7 +100,6 @@ public class ChessHandler {
         gameService.joinGame(request);
 
         ctx.status(200);
-        return null; 
     }
 
     public void clear(Context ctx) throws Exception {
@@ -113,6 +107,5 @@ public class ChessHandler {
         clearService.clear();
 
         ctx.status(200);
-        return null; 
     }
 }
