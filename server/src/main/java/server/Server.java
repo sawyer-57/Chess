@@ -20,11 +20,12 @@ public class Server {
 
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-
+        ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
         
         ChessHandler handler = new ChessHandler(
             userService,
-            gameService
+            gameService, 
+            clearService
         );
 
         javalin.post("/user", handler::register);
