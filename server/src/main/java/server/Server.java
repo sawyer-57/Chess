@@ -20,7 +20,7 @@ public class Server {
 
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-        ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
+        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         
         ChessHandler handler = new ChessHandler(
             userService,

@@ -9,16 +9,16 @@ public class ClearService {
     private final GameDAO gameDAO;
 
     public ClearService(
-            UserDAO userDAO,
-            AuthDAO authDAO,
-            GameDAO gameDAO){
+            UserDAO userDAO, 
+            AuthDAO authDAO, 
+            GameDAO gameDAO) {
 
         this.userDAO=userDAO;
         this.authDAO=authDAO;
         this.gameDAO=gameDAO;
     }
 
-    public void clear(){
+    public void clear() throws Exception{
 
         userDAO.clear();
         authDAO.clear();
