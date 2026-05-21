@@ -2,8 +2,12 @@ package server;
 
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson; 
+
 import server.handlers.ChessHandler;
+
 import service.*;
+import service.results.ErrorResult; 
+
 import dataaccess.*;
 import exception.*;
 
@@ -40,23 +44,37 @@ public class Server {
         javalin.put("/game", handler::joinGame);
         javalin.delete("/db", handler::clear);
 
-        javalin.exception(UnauthorizedException.class, (e, ctx) -> {
-            ctx.status(401);
-            ctx.json(new model.ErrorResponse("Error: unauthorized"));
-        });
-        javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
-            ctx.status(403);
-            ctx.json(new model.ErrorResponse("Error: already taken"));
-        });
-        javalin.exception(BadRequestException.class, (e, ctx) -> {
-            ctx.status(400);
-            ctx.json(new model.ErrorResponse(
-                    "Error: bad request"));
-        });
-        javalin.exception(Exception.class, (e, ctx) -> {
-            ctx.status(500);
-            ctx.json(new model.ErrorResponse("Error: " + e.getMessage()));
-        });
+        javalin.exception(BadRequestException.class,
+                (e, ctx) -> {
+                    ctx.status(400);
+                    ctx.json(
+                            new ErrorResult(
+                                    "Error: bad request"));
+                });
+
+        javalin.exception(UnauthorizedException.class,
+                (e, ctx) -> {
+                    ctx.status(401);
+                    ctx.json(
+                            new ErrorResult(
+                                    "Error: unauthorized"));
+                });
+
+        javalin.exception(AlreadyTakenException.class,
+                (e, ctx) -> {
+                    ctx.status(403);
+                    ctx.json(
+                            new ErrorResult(
+                                    "Error: already taken"));
+                });
+
+        javalin.exception(Exception.class,
+                (e, ctx) -> {
+                    ctx.status(500);
+                    ctx.json(
+                            new ErrorResult(
+                                    "Error: " + e.getMessage()));
+                });
     }
 
     public int run(int desiredPort) {

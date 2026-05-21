@@ -6,6 +6,7 @@ import io.javalin.http.Context;
 import service.*;
 import service.requests.*;
 import service.results.*;
+
 import exception.*; 
 
 public class ChessHandler {
@@ -64,10 +65,6 @@ public class ChessHandler {
 
         String authToken = ctx.header("authorization");
 
-        if (authToken == null || authToken.isBlank()) {
-                throw new UnauthorizedException();
-        }
-
         LogoutRequest request = new LogoutRequest(authToken);
 
         userService.logout(request);
@@ -78,10 +75,6 @@ public class ChessHandler {
     public void listGames(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
-
-        if (authToken == null || authToken.isBlank()) {
-                throw new UnauthorizedException();
-        }
 
         ListGamesRequest request = new ListGamesRequest(authToken);
 
@@ -94,10 +87,6 @@ public class ChessHandler {
     public void createGame(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
-
-        if (authToken == null || authToken.isBlank()) {
-                throw new UnauthorizedException();
-        }
 
         CreateGameRequest body = 
                 gson.fromJson(ctx.body(), CreateGameRequest.class);
@@ -118,10 +107,6 @@ public class ChessHandler {
     public void joinGame(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
-
-        if (authToken == null || authToken.isBlank()) {
-                throw new UnauthorizedException();
-        }
 
         JoinGameRequest body = 
                 gson.fromJson(ctx.body(), JoinGameRequest.class);
