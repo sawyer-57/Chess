@@ -1,6 +1,9 @@
 package server;
 
 import io.javalin.Javalin; 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.javalin.json.JavalinJackson;
+
 import server.handlers.ChessHandler;
 import service.*; 
 import dataaccess.*;
@@ -13,6 +16,7 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> {
             config.staticFiles.add("web"); 
+            config.jsonMapper(new JavalinJackson(new ObjectMapper()));
         });
 
         // Register your endpoints and exception handlers here.
