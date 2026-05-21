@@ -1,6 +1,7 @@
 package server;
 
 import io.javalin.Javalin;
+import io.javalin.json.JavalinJackson; 
 import server.handlers.ChessHandler;
 import service.*;
 import dataaccess.*;
@@ -11,7 +12,10 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        javalin = Javalin.create(config -> {
+            config.staticFiles.add("web"); 
+            config.jsonMapper(new JavalinJackson());
+        });
 
         // Register your endpoints and exception handlers here.
         UserDAO userDAO = new MemoryUserDAO();

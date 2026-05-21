@@ -6,6 +6,7 @@ import io.javalin.http.Context;
 import service.*;
 import service.requests.*;
 import service.results.*;
+import exception.*; 
 
 public class ChessHandler {
 
@@ -29,6 +30,13 @@ public class ChessHandler {
         RegisterRequest request =
                 gson.fromJson(ctx.body(), RegisterRequest.class);
 
+        if (request == null
+                || request.username() == null
+                || request.password() == null
+                || request.email() == null) {
+                throw new BadRequestException();
+        }
+
         RegisterResult result =
                 userService.register(request);
 
@@ -40,6 +48,12 @@ public class ChessHandler {
         LoginRequest request =
                 gson.fromJson(ctx.body(), LoginRequest.class);
 
+        if (request == null
+                || request.username() == null
+                || request.password() == null) {
+                throw new BadRequestException();
+        }
+
         LoginResult result =
                 userService.login(request);
 
@@ -49,6 +63,10 @@ public class ChessHandler {
     public void logout(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
+
+        if (authToken == null || authToken.isBlank()) {
+                throw new UnauthorizedException();
+        }
 
         LogoutRequest request = new LogoutRequest(authToken);
 
@@ -60,6 +78,10 @@ public class ChessHandler {
     public void listGames(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
+
+        if (authToken == null || authToken.isBlank()) {
+                throw new UnauthorizedException();
+        }
 
         ListGamesRequest request = new ListGamesRequest(authToken);
 
@@ -73,10 +95,19 @@ public class ChessHandler {
 
         String authToken = ctx.header("authorization");
 
-        CreateGameRequest request =
+        if (authToken == null || authToken.isBlank()) {
+                throw new UnauthorizedException();
+        }
+
+        CreateGameRequest body = 
                 gson.fromJson(ctx.body(), CreateGameRequest.class);
 
-        request = new CreateGameRequest(authToken, request.gameName());
+        if (body == null || body.gameName() == null) {
+                throw new BadRequestException();
+        }
+
+        CreateGameRequest request =
+                new CreateGameRequest(authToken, body.gameName());
 
         CreateGameResult result =
                 gameService.createGame(request);
@@ -88,14 +119,27 @@ public class ChessHandler {
 
         String authToken = ctx.header("authorization");
 
-        JoinGameRequest request =
+        if (authToken == null || authToken.isBlank()) {
+                throw new UnauthorizedException();
+        }
+
+        JoinGameRequest body = 
                 gson.fromJson(ctx.body(), JoinGameRequest.class);
 
-        request = new JoinGameRequest(
-                authToken,
-                request.playerColor(),
-                request.gameID()
-        );
+        if (body == null
+                || body.playerColor() == null
+                || body.gameID() <= 0) {
+                throw new BadRequestException();
+        }
+
+        String color = body.playerColor();
+
+        if (!color.equals("WHITE") && !color.equals("BLACK")) {
+                throw new BadRequestException();
+        }
+
+        JoinGameRequest request =
+                new JoinGameRequest(authToken, color, body.gameID());
 
         gameService.joinGame(request);
 
