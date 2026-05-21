@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.*;
+import dataaccess.*; 
 
 public class ClearService {
 
@@ -18,7 +18,7 @@ public class ClearService {
         this.gameDAO=gameDAO;
     }
 
-    public void clear() throws Exception{
+    public void clear() throws DataAccessException{
 
         userDAO.clear();
         authDAO.clear();
