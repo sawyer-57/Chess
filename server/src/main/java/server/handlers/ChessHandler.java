@@ -13,12 +13,15 @@ public class ChessHandler {
 
     private final UserService userService;
     private final GameService gameService;
+    private final ClearService clearService;
 
     public ChessHandler(UserService userService,
-                        GameService gameService) {
+                        GameService gameService, 
+                        ClearService clearService) {
 
         this.userService = userService;
         this.gameService = gameService;
+        this.clearService = clearService;
     }
 
     public Object register(Context ctx) throws Exception {
@@ -101,7 +104,7 @@ public class ChessHandler {
 
     public Object clear(Context ctx) throws Exception {
 
-        userService.clear();
+        clearService.clear();
 
         return new Object();
     }

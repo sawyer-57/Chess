@@ -27,8 +27,7 @@ public class GameService {
             throws Exception{
 
         if(authDAO.getAuth(request.authToken())==null){
-            throw new UnauthorizedException(
-                "Error: unauthorized");
+            throw new UnauthorizedException();
         }
 
         List<GameData> games=
@@ -42,8 +41,7 @@ public class GameService {
             throws Exception{
 
         if(authDAO.getAuth(request.authToken())==null){
-            throw new UnauthorizedException(
-                "Error: unauthorized");
+            throw new UnauthorizedException();
         }
 
         ChessGame chessGame=new ChessGame();
@@ -70,8 +68,7 @@ public class GameService {
                         request.authToken());
 
         if(auth == null){
-            throw new UnauthorizedException(
-                "Error: unauthorized");
+            throw new UnauthorizedException();
         }
 
         GameData game=
@@ -79,8 +76,7 @@ public class GameService {
                         request.gameID());
 
         if(game == null){
-            throw new BadRequestException(
-                "Error: bad request");
+            throw new BadRequestException();
         }
 
         if(request.playerColor()
@@ -88,8 +84,7 @@ public class GameService {
 
             if(game.whiteUsername()!=null){
 
-                throw new AlreadyTakenException(
-                    "Error: already taken");
+                throw new AlreadyTakenException();
             }
 
             game=new GameData(
@@ -105,8 +100,7 @@ public class GameService {
                 .equals("BLACK")){
 
             if(game.blackUsername()!=null){
-                throw new AlreadyTakenException(
-                    "Error: already taken");
+                throw new AlreadyTakenException();
             }
 
             game=new GameData(
