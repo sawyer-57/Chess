@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import server.handlers.ChessHandler;
 import service.*;
 import dataaccess.*;
+import exception.*;
 
 public class Server {
 

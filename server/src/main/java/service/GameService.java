@@ -2,13 +2,13 @@ package service;
 
 import dataaccess.*;
 import model.*;
-import chess.ChessGame;
 import service.requests.*;
 import service.results.*;
 import exception.*;
 
+import java.util.ArrayList;
 import java.util.List;
-
+import chess.ChessGame;
 
 public class GameService {
     private final GameDAO gameDAO; 
@@ -26,14 +26,13 @@ public class GameService {
             ListGamesRequest request)
             throws Exception{
 
-        if(authDAO.getAuth(
-                request.authToken())==null){
-
-            throw new UnauthorizedException();
+        if(authDAO.getAuth(request.authToken())==null){
+            throw new UnauthorizedException(
+                "Error: unauthorized");
         }
 
         List<GameData> games=
-                gameDAO.listGames();
+                new ArrayList<>(gameDAO.listGames());
 
         return new ListGamesResult(games);
     }
@@ -42,18 +41,24 @@ public class GameService {
             CreateGameRequest request)
             throws Exception{
 
-        if(authDAO.getAuth(
-                request.authToken())==null){
-
-            throw new UnauthorizedException();
+        if(authDAO.getAuth(request.authToken())==null){
+            throw new UnauthorizedException(
+                "Error: unauthorized");
         }
 
-        GameData game=
-                gameDAO.createGame(
-                        request.gameName());
+        ChessGame chessGame=new ChessGame();
 
-        return new CreateGameResult(
-                game.gameID());
+        GameData game = new GameData(
+            0, 
+            null, 
+            null, 
+            request.gameName(), 
+            chessGame
+        ); 
+
+        int gameID = gameDAO.createGame(game);
+
+        return new CreateGameResult(gameID);
     }
 
     public void joinGame(
@@ -64,18 +69,18 @@ public class GameService {
                 authDAO.getAuth(
                         request.authToken());
 
-        if(auth==null){
-
-            throw new UnauthorizedException();
+        if(auth == null){
+            throw new UnauthorizedException(
+                "Error: unauthorized");
         }
 
         GameData game=
                 gameDAO.getGame(
                         request.gameID());
 
-        if(game==null){
-
-            throw new BadRequestException();
+        if(game == null){
+            throw new BadRequestException(
+                "Error: bad request");
         }
 
         if(request.playerColor()
@@ -83,7 +88,8 @@ public class GameService {
 
             if(game.whiteUsername()!=null){
 
-                throw new AlreadyTakenException();
+                throw new AlreadyTakenException(
+                    "Error: already taken");
             }
 
             game=new GameData(
@@ -99,8 +105,8 @@ public class GameService {
                 .equals("BLACK")){
 
             if(game.blackUsername()!=null){
-
-                throw new AlreadyTakenException();
+                throw new AlreadyTakenException(
+                    "Error: already taken");
             }
 
             game=new GameData(

@@ -51,7 +51,7 @@ public class ChessHandler {
 
         userService.logout(request);
 
-        return new EmptyResponse();
+        return new Object();
     }
 
     public Object listGames(Context ctx) throws Exception {
@@ -101,8 +101,8 @@ public class ChessHandler {
 
     public Object clear(Context ctx) throws Exception {
 
-        databaseService.clear();
+        userService.clear();
 
-        return new EmptyResponse();
+        return new Object();
     }
 }
