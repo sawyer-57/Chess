@@ -57,7 +57,13 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest request)
-        throws Exception{
+                throws Exception {
+
+        if(request.username()==null ||
+        request.password()==null){
+
+                throw new BadRequestException();
+        }
 
         UserData user=
                 userDAO.getUser(
@@ -67,7 +73,7 @@ public class UserService {
         !user.password()
                 .equals(request.password())){
 
-            throw new UnauthorizedException();
+                throw new UnauthorizedException();
         }
 
         String token=
@@ -82,7 +88,7 @@ public class UserService {
         return new LoginResult(
                 user.username(),
                 token);
-    }
+        } 
 
     public void logout(
         LogoutRequest request)

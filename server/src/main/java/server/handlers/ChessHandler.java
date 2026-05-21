@@ -24,7 +24,7 @@ public class ChessHandler {
         this.clearService = clearService;
     }
 
-    public Object register(Context ctx) throws Exception {
+    public void register(Context ctx) throws Exception {
 
         RegisterRequest request =
                 gson.fromJson(ctx.body(), RegisterRequest.class);
@@ -32,10 +32,11 @@ public class ChessHandler {
         RegisterResult result =
                 userService.register(request);
 
-        return result;
+        ctx.json(result);
+        return null; 
     }
 
-    public Object login(Context ctx) throws Exception {
+    public void login(Context ctx) throws Exception {
 
         LoginRequest request =
                 gson.fromJson(ctx.body(), LoginRequest.class);
@@ -43,10 +44,11 @@ public class ChessHandler {
         LoginResult result =
                 userService.login(request);
 
-        return result;
+        ctx.json(result);
+        return null; 
     }
 
-    public Object logout(Context ctx) throws Exception {
+    public void logout(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
 
@@ -54,10 +56,11 @@ public class ChessHandler {
 
         userService.logout(request);
 
-        return new Object();
+        ctx.status(200);
+        return null; 
     }
 
-    public Object listGames(Context ctx) throws Exception {
+    public void listGames(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
 
@@ -66,10 +69,11 @@ public class ChessHandler {
         ListGamesResult result =
                 gameService.listGames(request);
 
-        return result;
+        ctx.json(result);
+        return null; 
     }
 
-    public Object createGame(Context ctx) throws Exception {
+    public void createGame(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
 
@@ -81,10 +85,11 @@ public class ChessHandler {
         CreateGameResult result =
                 gameService.createGame(request);
 
-        return result;
+        ctx.json(result);
+        return null; 
     }
 
-    public Object joinGame(Context ctx) throws Exception {
+    public void joinGame(Context ctx) throws Exception {
 
         String authToken = ctx.header("authorization");
 
@@ -99,13 +104,15 @@ public class ChessHandler {
 
         gameService.joinGame(request);
 
-        return new Object();
+        ctx.status(200);
+        return null; 
     }
 
-    public Object clear(Context ctx) throws Exception {
+    public void clear(Context ctx) throws Exception {
 
         clearService.clear();
 
-        return new Object();
+        ctx.status(200);
+        return null; 
     }
 }
