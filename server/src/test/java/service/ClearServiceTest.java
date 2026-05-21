@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.*;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,11 +20,10 @@ public class ClearServiceTest {
     }
 
     @Test
-    public void clearPositive(){
+    public void clearPositive() throws DataAccessException {
 
         clearService.clear();
 
         assertTrue(true);
     }
-
 }
