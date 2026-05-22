@@ -1,8 +1,7 @@
 package server;
 
-import io.javalin.Javalin; 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.javalin.json.JavalinJackson;
+import io.javalin.Javalin;
+import com.google.gson.Gson;
 
 import server.handlers.ChessHandler;
 import service.*; 
@@ -12,11 +11,11 @@ import exception.*;
 public class Server {
 
     private final Javalin javalin;
+    private final Gson gson = new Gson();
 
     public Server() {
         javalin = Javalin.create(config -> {
-            config.staticFiles.add("web"); 
-            config.jsonMapper(new JavalinJackson(new ObjectMapper()));
+            config.staticFiles.add("web");
         });
 
         // Register your endpoints and exception handlers here.
@@ -44,22 +43,34 @@ public class Server {
 
         javalin.exception(UnauthorizedException.class, (e, ctx) -> {
             ctx.status(401);
-            ctx.json(new model.ErrorResponse("Error: unauthorized"));
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(
+                    new model.ErrorResponse(
+                            "Error: unauthorized")));
         });
 
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> {
             ctx.status(403);
-            ctx.json(new model.ErrorResponse("Error: already taken"));
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(
+                    new model.ErrorResponse(
+                            "Error: already taken")));
         });
 
         javalin.exception(BadRequestException.class, (e, ctx) -> {
             ctx.status(400);
-            ctx.json(new model.ErrorResponse("Error: bad request"));
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(
+                    new model.ErrorResponse(
+                            "Error: bad request")));
         });
 
         javalin.exception(Exception.class, (e, ctx) -> {
             ctx.status(500);
-            ctx.json(new model.ErrorResponse("Error: " + e.getMessage()));
+            ctx.contentType("application/json");
+            ctx.result(gson.toJson(
+                    new model.ErrorResponse(
+                            "Error: " + e.getMessage())));
         });
     }
 

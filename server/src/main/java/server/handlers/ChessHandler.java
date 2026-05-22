@@ -41,7 +41,8 @@ public class ChessHandler {
         RegisterResult result =
                 userService.register(request);
 
-        ctx.json(result);
+        ctx.contentType("application/json");
+        ctx.result(gson.toJson(result));
     }
 
     public void login(Context ctx) throws Exception {
@@ -58,7 +59,8 @@ public class ChessHandler {
         LoginResult result =
                 userService.login(request);
 
-        ctx.json(result);
+        ctx.contentType("application/json");
+        ctx.result(gson.toJson(result));
     }
 
     public void logout(Context ctx) throws Exception {
@@ -81,7 +83,8 @@ public class ChessHandler {
         ListGamesResult result =
                 gameService.listGames(request);
 
-        ctx.json(result);
+        ctx.contentType("application/json");
+        ctx.result(gson.toJson(result));
     }
 
     public void createGame(Context ctx) throws Exception {
@@ -101,7 +104,8 @@ public class ChessHandler {
         CreateGameResult result =
                 gameService.createGame(request);
 
-        ctx.json(result);
+        ctx.contentType("application/json");
+        ctx.result(gson.toJson(result));
     }
 
     public void joinGame(Context ctx) throws Exception {
@@ -112,14 +116,13 @@ public class ChessHandler {
                 gson.fromJson(ctx.body(), JoinGameRequest.class);
 
         if (body == null
-                || body.playerColor() == null
                 || body.gameID() <= 0) {
                 throw new BadRequestException();
         }
 
         String color = body.playerColor();
 
-        if (!color.equals("WHITE") && !color.equals("BLACK")) {
+        if (color != null && !color.equals("WHITE") && !color.equals("BLACK")) {
                 throw new BadRequestException();
         }
 
