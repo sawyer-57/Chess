@@ -79,6 +79,12 @@ public class GameService {
             throw new BadRequestException();
         }
 
+        if(request.playerColor() == null ||
+                (!request.playerColor().equals("WHITE")
+                        && !request.playerColor().equals("BLACK"))) {
+            throw new BadRequestException();
+        }
+
         if(request.playerColor()
                 .equals("WHITE")){
 
