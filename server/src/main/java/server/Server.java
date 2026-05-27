@@ -75,6 +75,11 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        try {
+            new MySqlDataAccess();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         javalin.start(desiredPort);
         return javalin.port();
     }
