@@ -47,6 +47,19 @@ public class MySqlAuthDAOTest {
     // ---------------- NEGATIVE ----------------
 
     @Test
+    void createAuthNegativeDuplicate() throws Exception {
+
+        AuthData auth = new AuthData("token123", "alice");
+
+        dao.createAuth(auth);
+
+        assertThrows(
+                DataAccessException.class,
+                () -> dao.createAuth(auth)
+        );
+    }
+
+    @Test
     void getAuthNegative() throws Exception {
         assertNull(dao.getAuth("badtoken"));
     }

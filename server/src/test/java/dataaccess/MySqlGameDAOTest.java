@@ -77,10 +77,69 @@ public class MySqlGameDAOTest {
         assertEquals("black", result.blackUsername());
     }
 
+    @Test
+    void clearPositive() throws Exception {
+
+        dao.createGame(makeGame(1, "g1"));
+        dao.createGame(makeGame(2, "g2"));
+
+        dao.clear();
+
+        List<GameData> games = dao.listGames();
+
+        assertEquals(0, games.size());
+    }
+
     // ---------------- NEGATIVE ----------------
+
+    @Test
+    void createGameNegative() throws Exception {
+
+        GameData game = makeGame(1, "g1");
+
+        dao.createGame(game);
+
+        GameData badGame =
+                new GameData(
+                        0,
+                        null,
+                        null,
+                        null,
+                        new ChessGame()
+                );
+
+        assertThrows(
+                DataAccessException.class,
+                () -> dao.createGame(badGame)
+        );
+    }
+
+    @Test
+    void listGamesNegativeEmpty() throws Exception {
+
+        List<GameData> games = dao.listGames();
+
+        assertNotNull(games);
+        assertEquals(0, games.size());
+    }
 
     @Test
     void getGameNegative() throws Exception {
         assertNull(dao.getGame(999));
+    }
+
+    @Test
+    void updateGameNegative() throws Exception {
+
+        GameData game =
+                new GameData(
+                        999,
+                        "white",
+                        "black",
+                        "ghost",
+                        new ChessGame()
+                );
+
+        assertDoesNotThrow(() -> dao.updateGame(game));
     }
 }

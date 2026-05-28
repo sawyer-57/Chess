@@ -47,6 +47,24 @@ public class MySqlUserDAOTest {
         assertNotNull(result);
     }
 
+    @Test
+    void clearPositive() throws Exception {
+
+        UserData user1 =
+                new UserData("alice", "hash", "a@a.com");
+
+        UserData user2 =
+                new UserData("bob", "hash", "b@b.com");
+
+        dao.createUser(user1);
+        dao.createUser(user2);
+
+        dao.clear();
+
+        assertNull(dao.getUser("alice"));
+        assertNull(dao.getUser("bob"));
+    }
+
     // ---------------- NEGATIVE ----------------
 
     @Test
