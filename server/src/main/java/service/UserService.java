@@ -8,6 +8,7 @@ import service.results.*;
 
 import java.util.UUID;
 
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
 
@@ -36,9 +37,14 @@ public class UserService {
             throw new AlreadyTakenException();
         }
 
-        UserData user=new UserData(
+        String hashedPassword =
+                BCrypt.hashpw(
+                        request.password(),
+                        BCrypt.gensalt());
+
+        UserData user = new UserData(
                 request.username(),
-                request.password(),
+                hashedPassword,
                 request.email());
 
         userDAO.createUser(user);
@@ -69,11 +75,12 @@ public class UserService {
                 userDAO.getUser(
                         request.username());
 
-        if(user==null ||
-        !user.password()
-                .equals(request.password())){
+        if(user == null ||
+                !BCrypt.checkpw(
+                        request.password(),
+                        user.password())) {
 
-                throw new UnauthorizedException();
+            throw new UnauthorizedException();
         }
 
         String token=
