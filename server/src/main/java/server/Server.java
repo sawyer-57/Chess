@@ -19,9 +19,9 @@ public class Server {
         });
 
         // Register your endpoints and exception handlers here.
-        UserDAO userDAO = new MemoryUserDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+        UserDAO userDAO = new MySqlUserDAO();
+        GameDAO gameDAO = new MySqlGameDAO();
+        AuthDAO authDAO = new MySqlAuthDAO();
 
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
