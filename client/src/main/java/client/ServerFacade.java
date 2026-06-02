@@ -88,4 +88,22 @@ public class ServerFacade {
                         connection.getInputStream()),
                 LoginResult.class);
     }
+
+    public void logout(String authToken)
+            throws Exception {
+        HttpURLConnection connection =
+                (HttpURLConnection)
+                       URI.create(serverUrl + "/session")
+                               .toURL()
+                               .openConnection();
+        connection.setRequestMethod("DELETE");
+
+        connection.setRequestProperty(
+                "Authorization",
+                authToken);
+
+        if (connection.getResponseCode() != 200) {
+            throw new Exception("logout failed");
+        }
+    }
 }
