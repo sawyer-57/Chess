@@ -144,4 +144,30 @@ public class ServerFacade {
                 CreateGameResult.class);
     }
 
+    public ListGamesResult listGames(
+            String authToken)
+            throws Exception {
+
+        HttpURLConnection connection =
+                (HttpURLConnection)
+                        URI.create(serverUrl + "/game")
+                                .toURL()
+                                .openConnection();
+
+        connection.setRequestMethod("GET");
+
+        connection.setRequestProperty(
+                "Authorization",
+                authToken);
+
+        if (connection.getResponseCode() != 200) {
+            throw new Exception("list games failed");
+        }
+
+        return gson.fromJson(
+                new InputStreamReader(
+                        connection.getInputStream()),
+                ListGamesResult.class);
+    }
+
 }
