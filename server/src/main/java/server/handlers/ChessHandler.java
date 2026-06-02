@@ -5,9 +5,12 @@ import io.javalin.http.Context;
 
 import service.*;
 import service.requests.*;
-import service.results.*;
 
-import exception.*; 
+import exception.*;
+import service.results.CreateGameResult;
+import service.results.ListGamesResult;
+import service.results.LoginResult;
+import service.results.RegisterResult;
 
 public class ChessHandler {
 
@@ -91,7 +94,7 @@ public class ChessHandler {
 
         String authToken = ctx.header("authorization");
 
-        CreateGameRequest body = 
+        CreateGameRequest body =
                 gson.fromJson(ctx.body(), CreateGameRequest.class);
 
         if (body == null || body.gameName() == null) {
@@ -112,7 +115,7 @@ public class ChessHandler {
 
         String authToken = ctx.header("authorization");
 
-        JoinGameRequest body = 
+        JoinGameRequest body =
                 gson.fromJson(ctx.body(), JoinGameRequest.class);
 
         if (body == null

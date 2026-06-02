@@ -2,10 +2,13 @@ package service;
 
 import dataaccess.*;
 import model.*;
-import service.requests.*;
-import service.results.*;
+import service.requests.CreateGameRequest;
+import service.requests.JoinGameRequest;
+import service.requests.ListGamesRequest;
 
 import org.junit.jupiter.api.*;
+import service.results.CreateGameResult;
+import service.results.ListGamesResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 

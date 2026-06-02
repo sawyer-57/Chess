@@ -2,13 +2,16 @@ package service;
 
 import dataaccess.*;
 import model.*;
-import service.requests.*;
-import service.results.*;
+import service.requests.CreateGameRequest;
+import service.requests.JoinGameRequest;
+import service.requests.ListGamesRequest;
 import exception.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import chess.ChessGame;
+import service.results.CreateGameResult;
+import service.results.ListGamesResult;
 
 public class GameService {
     private final GameDAO gameDAO; 

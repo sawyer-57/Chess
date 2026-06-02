@@ -1,13 +1,16 @@
 package service;
 
 import dataaccess.*;
-import model.*;
-import service.requests.*;
-import service.results.*;
+import service.requests.LoginRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
 
 import exception.*;
 
 import org.junit.jupiter.api.*;
+import service.results.LoginResult;
+import service.results.RegisterResult;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {

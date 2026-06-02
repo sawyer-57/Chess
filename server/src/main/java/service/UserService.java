@@ -3,12 +3,15 @@ package service;
 import dataaccess.*;
 import exception.*;
 import model.*;
-import service.requests.*;
-import service.results.*;
+import service.requests.LoginRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
 
 import java.util.UUID;
 
 import org.mindrot.jbcrypt.BCrypt;
+import service.results.LoginResult;
+import service.results.RegisterResult;
 
 public class UserService {
 
