@@ -53,4 +53,39 @@ public class ServerFacade {
                         connection.getInputStream()),
                 RegisterResult.class);
     }
+
+
+    public LoginResult login(
+            String username,
+            String password)
+            throws Exception {
+
+        LoginRequest request =
+                new LoginRequest(
+                        username,
+                        password);
+        HttpURLConnection connection =
+                (HttpURLConnection)
+                        URI.create(serverUrl + "/session")
+                                .toURL()
+                                .openConnection();
+
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+
+        try (OutputStream body =
+                    connection.getOutputStream()) {
+            body.write(
+                    gson.toJson(request).getBytes());
+        }
+
+        if (connection.getResponseCode() != 200) {
+            throw new Exception("login failed");
+        }
+
+        return gson.fromJson(
+                new InputStreamReader(
+                        connection.getInputStream()),
+                LoginResult.class);
+    }
 }
