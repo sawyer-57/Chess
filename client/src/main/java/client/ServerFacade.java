@@ -170,4 +170,40 @@ public class ServerFacade {
                 ListGamesResult.class);
     }
 
+    public void joinGame(
+            String authToken,
+            String playerColor,
+            int gameID)
+            throws Exception {
+
+        JoinGameRequest request =
+                new JoinGameRequest(
+                        authToken,
+                        playerColor,
+                        gameID);
+
+        HttpURLConnection connection =
+                (HttpURLConnection)
+                        URI.create(serverUrl + "/game")
+                                .toURL()
+                                .openConnection();
+
+        connection.setRequestMethod("PUT");
+        connection.setDoOutput(true);
+
+        connection.setRequestProperty(
+                "Authorization",
+                authToken);
+
+        try (OutputStream body =
+                connection.getOutputStream()) {
+            body.write(
+                    gson.toJson(request).getBytes());
+        }
+
+        if (connection.getResponseCode() != 200) {
+            throw new Exception("join game failed");
+        }
+    }
+
 }
