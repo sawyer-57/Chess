@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -106,4 +105,43 @@ public class ServerFacade {
             throw new Exception("logout failed");
         }
     }
+
+    public CreateGameResult createGame(
+            String authToken,
+            String gameName)
+            throws Exception {
+
+        CreateGameRequest request =
+                new CreateGameRequest(
+                        authToken,
+                        gameName);
+        HttpURLConnection connection =
+                (HttpURLConnection)
+                        URI.create(serverUrl + "/game")
+                                .toURL()
+                                .openConnection();
+
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+
+        connection.setRequestProperty(
+                "Authorization",
+                authToken);
+
+        try (OutputStream body =
+                    connection.getOutputStream()) {
+            body.write(
+                    gson.toJson(request).getBytes());
+        }
+
+        if (connection.getResponseCode() != 200) {
+            throw new Exception("create game failed");
+        }
+
+        return gson.fromJson(
+                new InputStreamReader(
+                        connection.getInputStream()),
+                CreateGameResult.class);
+    }
+
 }
