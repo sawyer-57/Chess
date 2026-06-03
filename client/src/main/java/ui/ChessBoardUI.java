@@ -18,7 +18,7 @@ public class ChessBoardUI {
             rows = new int[]{8,7,6,5,4,3,2,1};
             cols = new char[]{'a','b','c','d','e','f','g','h'};
         }
-
+        printColumnLabels(cols);
         for (int row : rows) {
             System.out.print(row + " ");
 
@@ -37,10 +37,13 @@ public class ChessBoardUI {
 
                 System.out.print(getPieceString(piece));
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR);
             }
 
+            System.out.print(" " + row);
             System.out.println();
         }
+        printColumnLabels(cols);
     }
 
     public static String getPieceString(ChessPiece piece) {
@@ -85,5 +88,15 @@ public class ChessBoardUI {
                 return EscapeSequences.EMPTY;
         }
 
+    }
+
+    private static void printColumnLabels(char[] cols) {
+        System.out.print("   ");
+
+        for (char c : cols) {
+            System.out.print(" " + c + " ");
+        }
+
+        System.out.println();
     }
 }

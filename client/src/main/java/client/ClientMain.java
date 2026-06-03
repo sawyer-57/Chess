@@ -3,6 +3,7 @@ package client;
 
 import chess.*;
 import ui.ChessClient;
+import client.ServerFacade;
 
 
 public class ClientMain {

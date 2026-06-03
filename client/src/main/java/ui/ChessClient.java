@@ -89,7 +89,7 @@ public class ChessClient {
 
             postlogin(scanner);
         } catch (Exception e) {
-            System.out.println("Unable to register");
+            System.out.println("Unable to register: " + e.getMessage());
         }
     }
 
@@ -112,7 +112,7 @@ public class ChessClient {
 
             postlogin(scanner);
         } catch (Exception e) {
-            System.out.println("Login failed");
+            System.out.println("Login failed: " + e.getMessage());
         }
     }
 
@@ -173,7 +173,7 @@ public class ChessClient {
             authToken = null;
             System.out.println("Logged out");
         } catch (Exception e) {
-            System.out.println("Logout failed");
+            System.out.println("Logout failed: " + e.getMessage());
         }
     }
 
@@ -189,7 +189,7 @@ public class ChessClient {
 
             System.out.println("Game created");
         } catch (Exception e) {
-            System.out.println("Unable to create game");
+            System.out.println("Unable to create game: " + e.getMessage());
         }
     }
 
@@ -210,7 +210,7 @@ public class ChessClient {
                         game.blackUsername());
             }
         } catch (Exception e) {
-            System.out.println("Unable to list games");
+            System.out.println("Unable to list games: " + e.getMessage());
         }
     }
 
@@ -232,7 +232,7 @@ public class ChessClient {
 
             ChessBoardUI.drawBoard(color.equals("BLACK"));
         } catch (Exception e) {
-            System.out.println("Unable to join game");
+            System.out.println("Unable to join game: " + e.getMessage());
         }
     }
 
@@ -248,7 +248,7 @@ public class ChessClient {
 
             ChessBoardUI.drawBoard(false);
         } catch (Exception e) {
-            System.out.println("Unable to observe game");
+            System.out.println("Unable to observe game: " + e.getMessage());
         }
     }
 }
