@@ -116,5 +116,44 @@ public class ChessClient {
         }
     }
 
+    private void postlogin(
+            Scanner scanner) {
+        while (authToken != null) {
+            System.out.print("postlogin> ");
+
+            String command =
+                    scanner.nextLine()
+                            .trim()
+                            .toLowerCase();
+            switch (command) {
+                case "help":
+                    printPostloginHelp();
+                    break;
+
+                case "logout":
+                    logout();
+                    break;
+
+                case "create":
+                    createGame(scanner);
+                    break;
+
+                case "list":
+                    listGames();
+                    break;
+
+                case "play":
+                    playGame(scanner);
+                    break;
+
+                case "observe":
+                    observeGame(scanner);
+                    break;
+
+                default:
+                    System.out.println("Unknown command");
+            }
+        }
+    }
 
 }
