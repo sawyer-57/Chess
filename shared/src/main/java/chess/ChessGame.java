@@ -53,7 +53,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition); 
         if (piece == null) {
-            return new ArrayList<>();
+            return null;
         }
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition); 
 
@@ -149,19 +149,7 @@ public class ChessGame {
             return false;
         }
 
-        for (ChessPosition pos : allPositions()) {
-            ChessPiece piece = board.getPiece(pos);
-
-            if (piece == null || piece.getTeamColor() != teamColor) {
-                continue;
-            }
-
-            if (!validMoves(pos).isEmpty()) {
-                return false;
-            }
-        }
-
-        return true;
+        return !hasAnyValidMove(teamColor);
     }
 
     /**
@@ -176,19 +164,7 @@ public class ChessGame {
             return false;
         }
 
-        for (ChessPosition pos : allPositions()) {
-            ChessPiece piece = board.getPiece(pos);
-
-            if (piece == null || piece.getTeamColor() != teamColor) {
-                continue;
-            }
-
-            if (!validMoves(pos).isEmpty()) {
-                return false;
-            }
-        }
-
-        return true;
+        return !hasAnyValidMove(teamColor);
     }
 
     /**
@@ -234,6 +210,22 @@ public class ChessGame {
             }
         }
         return positions;
+    }
+
+    private boolean hasAnyValidMove(TeamColor teamColor) {
+        for (ChessPosition pos : allPositions()) {
+            ChessPiece piece = board.getPiece(pos);
+
+            if (piece == null || piece.getTeamColor() != teamColor) {
+                continue;
+            }
+
+            if (!validMoves(pos).isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override 

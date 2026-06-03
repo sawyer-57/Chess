@@ -115,51 +115,7 @@ public class ChessPiece {
 
         //PAWN MOVES 
         else if (piece.getPieceType() == PieceType.PAWN) {
-
-            List<ChessMove> moves = new ArrayList<>();
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-
-            int dir = (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
-
-            int forwardRow = row + dir;
-
-            if (forwardRow >= 1 && forwardRow <= 8) {
-
-                ChessPosition oneStep = new ChessPosition(forwardRow, col);
-
-                if (board.getPiece(oneStep) == null) {
-
-                    addPawnPromotionIfNeeded(moves, myPosition, oneStep, piece);
-
-                    int startRow = (piece.getTeamColor() == ChessGame.TeamColor.WHITE) ? 2 : 7;
-
-                    if (row == startRow) {
-                        ChessPosition twoStep = new ChessPosition(row + 2 * dir, col);
-                        if (board.getPiece(twoStep) == null) {
-                            moves.add(new ChessMove(myPosition, twoStep, null));
-                        }
-                    }
-                }
-            }
-
-            int[][] caps = {{dir, 1}, {dir, -1}};
-
-            for (int[] c : caps) {
-                int r = row + c[0];
-                int c2 = col + c[1];
-
-                if (r < 1 || r > 8 || c2 < 1 || c2 > 8) continue;
-
-                ChessPosition pos = new ChessPosition(r, c2);
-                ChessPiece target = board.getPiece(pos);
-
-                if (target != null && target.getTeamColor() != piece.getTeamColor()) {
-                    addPawnPromotionIfNeeded(moves, myPosition, pos, piece);
-                }
-            }
-
-            return moves;
+            return pawnMoves(board, myPosition, piece);
         }
         
         return List.of();
@@ -210,7 +166,9 @@ public class ChessPiece {
             int row = start.getRow() + dir[0];
             int col = start.getColumn() + dir[1];
 
-            if (row < 1 || row > 8 || col < 1 || col > 8) continue;
+            if (row < 1 || row > 8 || col < 1 || col > 8) {
+                continue;
+            }
 
             ChessPosition newPos = new ChessPosition(row, col);
             ChessPiece target = board.getPiece(newPos);
@@ -223,11 +181,85 @@ public class ChessPiece {
         return moves;
     }
 
+    private List<ChessMove> pawnMoves(
+            ChessBoard board,
+            ChessPosition pos,
+            ChessPiece piece) {
+
+        List<ChessMove> moves = new ArrayList<>();
+
+        int row = pos.getRow();
+        int col = pos.getColumn();
+
+        int dir = (piece.getTeamColor() == ChessGame.TeamColor.WHITE)
+                ? 1 : -1;
+
+        int forwardRow = row + dir;
+
+        if (forwardRow < 1 || forwardRow > 8) {
+            return moves;
+        }
+
+        ChessPosition oneStep = new ChessPosition(forwardRow, col);
+
+        if (board.getPiece(oneStep) == null) {
+
+            addPawnPromotionIfNeeded(moves, pos, oneStep);
+
+            int startRow =
+                    (piece.getTeamColor() == ChessGame.TeamColor.WHITE)
+                            ? 2 : 7;
+
+            if (row == startRow) {
+
+                ChessPosition twoStep =
+                        new ChessPosition(row + 2 * dir, col);
+
+                if (board.getPiece(twoStep) == null) {
+                    moves.add(new ChessMove(pos, twoStep, null));
+                }
+            }
+        }
+
+        int[][] caps = {
+                {dir, 1},
+                {dir, -1}
+        };
+
+        for (int[] c : caps) {
+
+            int r = row + c[0];
+            int c2 = col + c[1];
+
+            if (r < 1 || r > 8 || c2 < 1 || c2 > 8) {
+                continue;
+            }
+
+            ChessPosition targetPos =
+                    new ChessPosition(r, c2);
+
+            ChessPiece target =
+                    board.getPiece(targetPos);
+
+            if (target == null) {
+                continue;
+            }
+
+            if (target.getTeamColor() != piece.getTeamColor()) {
+                addPawnPromotionIfNeeded(
+                        moves,
+                        pos,
+                        targetPos);
+            }
+        }
+
+        return moves;
+    }
+
     private void addPawnPromotionIfNeeded(
             List<ChessMove> moves,
             ChessPosition from,
-            ChessPosition to,
-            ChessPiece piece) {
+            ChessPosition to) {
 
         int row = to.getRow();
 
