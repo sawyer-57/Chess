@@ -206,4 +206,18 @@ public class ServerFacade {
         }
     }
 
+    public void clear() throws Exception {
+        HttpURLConnection connection =
+                (HttpURLConnection)
+                        URI.create(serverUrl + "/db")
+                                .toURL()
+                                .openConnection();
+
+        connection.setRequestMethod("DELETE");
+
+        if (connection.getResponseCode() != 200) {
+            throw new Exception("clear failed");
+        }
+    }
+
 }
