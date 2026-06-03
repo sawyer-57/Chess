@@ -57,4 +57,28 @@ public class ServerFacadeTests {
                         "password",
                         "player1@email.com"));
     }
+
+
+    @Test
+    void loginPositive()
+            throws Exception {
+        facade.register(
+                "player1",
+                "password",
+                "player1@email.com");
+        LoginResult result =
+                facade.login(
+                        "player1",
+                        "password");
+        assertNotNull(result);
+        assertNotNull(result.authToken());
+    }
+    @Test
+    void loginNegativeBadPassword() {
+        assertThrows(
+                Exception.class,
+                () -> facade.login(
+                        "player1",
+                        "wrongPassword"));
+    }
 }
