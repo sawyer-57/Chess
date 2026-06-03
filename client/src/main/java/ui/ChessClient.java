@@ -65,4 +65,32 @@ public class ChessClient {
                 quit
                 """);
     }
+
+    private void register(
+            Scanner scanner) {
+        try {
+            System.out.print("username: ");
+            String username = scanner.nextLine();
+
+            System.out.print("password: ");
+            String password = scanner.nextLine();
+
+            System.out.print("email: ");
+            String email = scanner.nextLine();
+
+            var result = server.register(
+                                username,
+                                password,
+                                email);
+            this.username = result.username();
+            this.authToken = result.authToken();
+
+            System.out.println("Registered successfully");
+
+            postlogin(scanner);
+        } catch (Exception e) {
+            System.out.println("Unable to register");
+        }
+    }
+
 }
