@@ -188,4 +188,16 @@ public class ServerFacadeTests {
                         "WHITE",
                         99999));
     }
+
+
+    @Test
+    void clearPositive()
+            throws Exception {
+        facade.register(
+                "player1",
+                "password",
+                "player1@email.com");
+        assertDoesNotThrow(
+                () -> facade.clear());
+    }
 }
