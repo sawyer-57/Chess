@@ -93,4 +93,28 @@ public class ChessClient {
         }
     }
 
+    private void login(
+            Scanner scanner) {
+        try {
+            System.out.print("username: ");
+            String username = scanner.nextLine();
+
+            System.out.print("password: ");
+            String password = scanner.nextLine();
+
+            var result = server.login(
+                                username,
+                                password);
+            this.username = result.username();
+            this.authToken = result.authToken();
+
+            System.out.println("Logged in successfully");
+
+            postlogin(scanner);
+        } catch (Exception e) {
+            System.out.println("Login failed");
+        }
+    }
+
+
 }
