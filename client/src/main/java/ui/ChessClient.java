@@ -240,7 +240,11 @@ public class ChessClient {
             Scanner scanner) {
         try {
             System.out.print("game number: ");
-            Integer.parseInt(scanner.nextLine());
+            int number = Integer.parseInt(scanner.nextLine());
+
+            int gameID = currentGames.get(number - 1).gameID();
+
+            System.out.println("Observing game " + gameID);
 
             ChessBoardUI.drawBoard(false);
         } catch (Exception e) {
