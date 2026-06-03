@@ -81,4 +81,25 @@ public class ServerFacadeTests {
                         "player1",
                         "wrongPassword"));
     }
+
+
+    @Test
+    void logoutPositive()
+            throws Exception {
+        RegisterResult auth =
+                facade.register(
+                        "player1",
+                        "password",
+                        "player1@email.com");
+        assertDoesNotThrow(
+                () -> facade.logout(
+                        auth.authToken()));
+    }
+    @Test
+    void logoutNegativeBadToken() {
+        assertThrows(
+                Exception.class,
+                () -> facade.logout(
+                        "badToken"));
+    }
 }
