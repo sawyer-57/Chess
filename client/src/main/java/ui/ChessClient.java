@@ -156,4 +156,40 @@ public class ChessClient {
         }
     }
 
+    private void printPostloginHelp() {
+        System.out.println("""
+                help
+                logout
+                create
+                list
+                play
+                observe
+                """);
+    }
+
+    private void logout() {
+        try {
+            server.logout(authToken);
+            authToken = null;
+            System.out.println("Logged out");
+        } catch (Exception e) {
+            System.out.println("Logout failed");
+        }
+    }
+
+    private void createGame(
+            Scanner scanner) {
+        try {
+            System.out.print("game name: ");
+            String gameName = scanner.nextLine();
+
+            server.createGame(
+                    authToken,
+                    gameName);
+
+            System.out.println("Game created");
+        } catch (Exception e) {
+            System.out.println("Unable to create game");
+        }
+    }
 }
