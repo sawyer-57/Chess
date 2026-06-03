@@ -102,4 +102,31 @@ public class ServerFacadeTests {
                 () -> facade.logout(
                         "badToken"));
     }
+
+
+    @Test
+    void createGamePositive()
+            throws Exception {
+        RegisterResult auth =
+                facade.register(
+                        "player1",
+                        "password",
+                        "player1@email.com");
+        CreateGameResult result =
+                facade.createGame(
+                        auth.authToken(),
+                        "GameOne");
+        assertTrue(result.gameID() > 0);
+    }
+    @Test
+    void createGameNegativeBadToken() {
+        assertThrows(
+                Exception.class,
+                () -> facade.createGame(
+                        "badToken",
+                        "GameOne"));
+    }
+
+
+
 }
