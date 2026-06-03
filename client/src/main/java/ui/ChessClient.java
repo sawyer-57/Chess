@@ -192,4 +192,59 @@ public class ChessClient {
             System.out.println("Unable to create game");
         }
     }
+
+    private void listGames() {
+        try {
+            var result = server.listGames(authToken);
+
+            currentGames = result.games();
+
+            for (int i = 0; i < currentGames.size(); i++) {
+                GameData game = currentGames.get(i);
+
+                System.out.printf(
+                        "%d. %s White:%s Black:%s%n",
+                        i + 1,
+                        game.gameName(),
+                        game.whiteUsername(),
+                        game.blackUsername());
+            }
+        } catch (Exception e) {
+            System.out.println("Unable to list games");
+        }
+    }
+
+    private void playGame(
+            Scanner scanner) {
+        try {
+            System.out.print("game number: ");
+            int number = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("WHITE or BLACK: ");
+            String color = scanner.nextLine()
+                                    .toUpperCase();
+            int gameID = currentGames.get(number - 1).gameID();
+
+            server.joinGame(
+                    authToken,
+                    color,
+                    gameID);
+
+            ChessBoardUI.drawBoard(color.equals("BLACK"));
+        } catch (Exception e) {
+            System.out.println("Unable to join game");
+        }
+    }
+
+    private void observeGame(
+            Scanner scanner) {
+        try {
+            System.out.print("game number: ");
+            Integer.parseInt(scanner.nextLine());
+
+            ChessBoardUI.drawBoard(false);
+        } catch (Exception e) {
+            System.out.println("Unable to observe game");
+        }
+    }
 }
