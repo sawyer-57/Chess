@@ -28,7 +28,7 @@ public class ChessBoardUI {
                 ChessPosition pos = new ChessPosition(row, colIndex);
                 ChessPiece piece = board.getPiece(pos);
 
-                boolean isLightSquare = (row + colIndex) % 2 == 0;
+                boolean isLightSquare = (row + colIndex) % 2 != 0;
                 if (isLightSquare) {
                     System.out.print(EscapeSequences.SET_BG_COLOR_WHITE);
                 } else {

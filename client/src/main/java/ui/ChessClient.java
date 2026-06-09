@@ -218,7 +218,22 @@ public class ChessClient {
             Scanner scanner) {
         try {
             System.out.print("game number: ");
-            int number = Integer.parseInt(scanner.nextLine());
+
+            String input = scanner.nextLine();
+
+            int number;
+
+            try {
+                number = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid game number. Please enter a number.");
+                return;
+            }
+
+            if (number < 1 || number > currentGames.size()) {
+                System.out.println("Game number does not exist.");
+                return;
+            }
 
             System.out.print("WHITE or BLACK: ");
             String color = scanner.nextLine()
@@ -240,7 +255,22 @@ public class ChessClient {
             Scanner scanner) {
         try {
             System.out.print("game number: ");
-            int number = Integer.parseInt(scanner.nextLine());
+
+            String input = scanner.nextLine();
+
+            int number;
+
+            try {
+                number = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid game number. Please enter a number.");
+                return;
+            }
+
+            if (number < 1 || number > currentGames.size()) {
+                System.out.println("Game number does not exist.");
+                return;
+            }
 
             int gameID = currentGames.get(number - 1).gameID();
 
