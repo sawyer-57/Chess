@@ -59,6 +59,10 @@ public class WebSocketHandler {
                 UserGameCommand.CommandType.RESIGN) {
 
             resign(command, ctx);
+        } else if (command.getCommandType() ==
+                UserGameCommand.CommandType.LEAVE) {
+
+            leave(command, ctx);
         }
 
         System.out.println("Received command: "
@@ -255,6 +259,51 @@ public class WebSocketHandler {
             connections.broadcast(
                     command.getGameID(),
                     gson.toJson(new NotificationMessage(username + " resigned"))
+            );
+
+        } catch (Exception e) {
+            ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
+        }
+    }
+
+    private void leave(UserGameCommand command, WsMessageContext ctx) {
+        try {
+            AuthData authData = authDAO.getAuth(command.getAuthToken());
+            if (authData == null) {
+                throw new RuntimeException("Error: unauthorized");
+            }
+
+            String username = authData.username();
+
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if (gameData == null || gameData.game() == null) {
+                throw new RuntimeException("Error: game not found");
+            }
+
+            String white = gameData.whiteUsername();
+            String black = gameData.blackUsername();
+
+            if (username.equals(white)) {
+                white = null;
+            } else if (username.equals(black)) {
+                black = null;
+            }
+
+            GameData updated = new GameData(
+                    gameData.gameID(),
+                    white,
+                    black,
+                    gameData.gameName(),
+                    gameData.game()
+            );
+
+            gameDAO.updateGame(updated);
+
+            connections.remove(command.getGameID(), username);
+
+            connections.broadcast(
+                    command.getGameID(),
+                    gson.toJson(new NotificationMessage(username + " left the game"))
             );
 
         } catch (Exception e) {
