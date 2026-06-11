@@ -7,12 +7,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import websocket.WebSocketClient;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
+import chess.ChessMove;
+import chess.ChessPosition;
+
 public class ChessClient {
 
     private final ServerFacade server;
+    private final WebSocketClient wsClient = new WebSocketClient();
 
     private String authToken;
     private String username;
+    private Integer currentGameID;
+    private String playerColor;
 
     private List<GameData> currentGames =
             new ArrayList<>();
@@ -108,6 +117,8 @@ public class ChessClient {
             this.username = result.username();
             this.authToken = result.authToken();
 
+            wsClient.connect("ws://localhost:8080/ws");
+
             System.out.println("Logged in successfully");
 
             postlogin(scanner);
@@ -150,6 +161,18 @@ public class ChessClient {
                     observeGame(scanner);
                     break;
 
+                case "move":
+                    makeMove(scanner);
+                    break;
+
+                case "resign":
+                    resign();
+                    break;
+
+                case "leave":
+                    leaveGame();
+                    break;
+
                 default:
                     System.out.println("Unknown command");
             }
@@ -164,6 +187,9 @@ public class ChessClient {
                 list
                 play
                 observe
+                move
+                resign
+                leave
                 """);
     }
 
@@ -240,10 +266,18 @@ public class ChessClient {
                                     .toUpperCase();
             int gameID = currentGames.get(number - 1).gameID();
 
+            currentGameID = gameID;
+
             server.joinGame(
                     authToken,
                     color,
                     gameID);
+
+            currentGameID = gameID;
+            playerColor = color;
+
+            wsClient.setSession(authToken, gameID);
+            wsClient.sendConnect();
 
             ChessBoardUI.drawBoard(color.equals("BLACK"));
         } catch (Exception e) {
@@ -274,6 +308,12 @@ public class ChessClient {
 
             int gameID = currentGames.get(number - 1).gameID();
 
+            currentGameID = gameID;
+            playerColor = "OBSERVER";
+
+            wsClient.setSession(authToken, gameID);
+            wsClient.sendConnect();
+
             System.out.println("Observing game " + gameID);
 
             ChessBoardUI.drawBoard(false);
@@ -281,4 +321,73 @@ public class ChessClient {
             System.out.println("Unable to observe game: " + e.getMessage());
         }
     }
+
+    private void makeMove(Scanner scanner) {
+        try {
+            if (currentGameID == null) {
+                System.out.println("You are not in a game");
+                return;
+            }
+
+            System.out.print("start row: ");
+            int sr = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("start col: ");
+            int sc = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("end row: ");
+            int er = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("end col: ");
+            int ec = Integer.parseInt(scanner.nextLine());
+
+            ChessMove move = new ChessMove(
+                    new ChessPosition(sr, sc),
+                    new ChessPosition(er, ec),
+                    null
+            );
+
+            MakeMoveCommand cmd = new MakeMoveCommand(
+                    authToken,
+                    currentGameID,
+                    move
+            );
+
+            wsClient.send(cmd);
+
+        } catch (Exception e) {
+            System.out.println("Move failed: " + e.getMessage());
+        }
+    }
+
+    private void resign() {
+        if (currentGameID == null) return;
+
+        UserGameCommand cmd = new UserGameCommand(
+                UserGameCommand.CommandType.RESIGN,
+                authToken,
+                currentGameID
+        );
+
+        wsClient.send(cmd);
+    }
+
+    private void leaveGame() {
+        if (currentGameID == null) return;
+
+        UserGameCommand cmd = new UserGameCommand(
+                UserGameCommand.CommandType.LEAVE,
+                authToken,
+                currentGameID
+        );
+
+        wsClient.send(cmd);
+
+        // CLIENT STATE RESET (IMPORTANT)
+        currentGameID = null;
+        playerColor = null;
+
+        System.out.println("Left game");
+    }
+
 }

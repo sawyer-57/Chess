@@ -10,9 +10,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 
+import websocket.WebSocketClient;
+
 public class ServerFacade {
     private final String serverUrl;
     private final Gson gson = new Gson();
+    private final WebSocketClient wsClient = new WebSocketClient();
 
     public ServerFacade(int port) {
         serverUrl = "http://localhost:" + port;
@@ -204,6 +207,12 @@ public class ServerFacade {
         if (connection.getResponseCode() != 200) {
             throw new Exception("join game failed");
         }
+
+        wsClient.setSession(authToken, gameID);
+
+        wsClient.connect("ws://localhost:8080/ws");
+
+        wsClient.sendConnect();
     }
 
     public void clear() throws Exception {
