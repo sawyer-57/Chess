@@ -13,6 +13,7 @@ import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import chess.ChessMove;
 import chess.ChessPosition;
+import chess.ChessPiece;
 
 public class ChessClient {
 
@@ -120,6 +121,7 @@ public class ChessClient {
             this.authToken = result.authToken();
 
             wsClient.connect("ws://localhost:8080/ws");
+            wsClient.setUI(this);
 
             System.out.println("Logged in successfully");
 
@@ -163,18 +165,6 @@ public class ChessClient {
                     observeGame(scanner);
                     break;
 
-                case "move":
-                    makeMove(scanner);
-                    break;
-
-                case "resign":
-                    resign();
-                    break;
-
-                case "leave":
-                    leaveGame();
-                    break;
-
                 default:
                     System.out.println("Unknown command");
             }
@@ -189,9 +179,6 @@ public class ChessClient {
                 list
                 play
                 observe
-                move
-                resign
-                leave
                 """);
     }
 
@@ -281,7 +268,7 @@ public class ChessClient {
             wsClient.setSession(authToken, gameID);
             wsClient.sendConnect();
 
-            ChessBoardUI.drawBoard(currentGame, color.equals("BLACK"));
+            gameLoop(scanner);
         } catch (Exception e) {
             System.out.println("Unable to join game: " + e.getMessage());
         }
@@ -365,6 +352,15 @@ public class ChessClient {
     private void resign() {
         if (currentGameID == null) return;
 
+        System.out.print("Are you sure you want to resign? (yes/no): ");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine().trim().toLowerCase();
+
+        if (!input.equals("yes")) {
+            System.out.println("Resign cancelled");
+            return;
+        }
+
         UserGameCommand cmd = new UserGameCommand(
                 UserGameCommand.CommandType.RESIGN,
                 authToken,
@@ -385,11 +381,102 @@ public class ChessClient {
 
         wsClient.send(cmd);
 
-        // CLIENT STATE RESET (IMPORTANT)
         currentGameID = null;
         playerColor = null;
+        currentGame = null;
 
         System.out.println("Left game");
+    }
+
+    private void highlightMoves(Scanner scanner) {
+
+        try {
+            System.out.print("row: ");
+            int row = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("col: ");
+            int col = Integer.parseInt(scanner.nextLine());
+
+            ChessPosition pos = new ChessPosition(row, col);
+
+            ChessPiece piece = currentGame.getBoard().getPiece(pos);
+
+            if (piece == null) {
+                System.out.println("No piece there");
+                return;
+            }
+
+            var moves = currentGame.validMoves(pos);
+
+            System.out.println("Legal moves:");
+            for (ChessMove move : moves) {
+                System.out.println(move.getEndPosition().getRow() +
+                        "," +
+                        move.getEndPosition().getColumn());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Highlight failed: " + e.getMessage());
+        }
+    }
+
+    private void gameLoop(Scanner scanner) {
+        while (currentGameID != null) {
+
+            System.out.print("game> ");
+
+            String command = scanner.nextLine().trim().toLowerCase();
+
+            switch (command) {
+
+                case "help":
+                    printGameHelp();
+                    break;
+
+                case "redraw":
+                    ChessBoardUI.drawBoard(currentGame, playerColor.equals("BLACK"));
+                    break;
+
+                case "move":
+                    makeMove(scanner);
+                    break;
+
+                case "resign":
+                    resign();
+                    break;
+
+                case "leave":
+                    leaveGame();
+                    return;
+
+                case "highlight":
+                    highlightMoves(scanner);
+                    break;
+
+                default:
+                    System.out.println("Unknown command");
+            }
+        }
+    }
+
+    private void printGameHelp() {
+        System.out.println("""
+            help
+            redraw
+            move
+            resign
+            leave
+            highlight
+            """);
+    }
+
+    public void updateGame(ChessGame game) {
+        this.currentGame = game;
+
+        boolean blackView =
+                playerColor != null && playerColor.equals("BLACK");
+
+        ChessBoardUI.drawBoard(currentGame, blackView);
     }
 
 }

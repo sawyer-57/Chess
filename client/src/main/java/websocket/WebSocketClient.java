@@ -24,17 +24,11 @@ public class WebSocketClient {
     private String authToken;
     private Integer gameID;
 
-    private ChessGame currentGame;
-    private ChessBoardUI boardUI;
+    private ui.ChessClient ui;
 
-    private MessageHandler handler;
 
-    public interface MessageHandler {
-        void onMessage(String message);
-    }
-
-    public void setBoardUI(ChessBoardUI ui) {
-        this.boardUI = ui;
+    public void setUI(ui.ChessClient ui) {
+        this.ui = ui;
     }
 
     public void connect(String serverUrl) {
@@ -64,7 +58,9 @@ public class WebSocketClient {
 
                                 System.out.println("\n[BOARD UPDATE]");
 
-                                ChessBoardUI.drawBoard(load.getGame(), false);
+                                if (ui != null) {
+                                    ui.updateGame(load.getGame());
+                                }
                             }
 
                             case NOTIFICATION -> {
@@ -100,10 +96,6 @@ public class WebSocketClient {
     public void setSession(String authToken, Integer gameID) {
         this.authToken = authToken;
         this.gameID = gameID;
-    }
-
-    public void setMessageHandler(MessageHandler handler) {
-        this.handler = handler;
     }
 
     public void sendConnect() {
