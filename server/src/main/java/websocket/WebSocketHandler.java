@@ -12,13 +12,18 @@ import websocket.commands.UserGameCommand;
 import model.GameData;
 import dataaccess.GameDAO;
 import dataaccess.MySqlGameDAO;
+import model.AuthData;
+import dataaccess.AuthDAO;
+import dataaccess.MySqlAuthDAO;
 
 import websocket.messages.LoadGameMessage;
+import websocket.messages.ErrorMessage;
 
 public class WebSocketHandler {
 
     private final Gson gson = new Gson();
     private final GameDAO gameDAO = new MySqlGameDAO();
+    private final AuthDAO authDAO = new MySqlAuthDAO();
 
     public void onConnect(WsConnectContext ctx) {
         System.out.println("WebSocket connected");
@@ -47,8 +52,19 @@ public class WebSocketHandler {
                          WsMessageContext ctx) {
         try {
 
+            AuthData authData =
+                    authDAO.getAuth(command.getAuthToken());
+
+            if (authData == null) {
+                throw new RuntimeException("Unauthorized");
+            }
+
             GameData gameData =
                     gameDAO.getGame(command.getGameID());
+
+            if (gameData == null) {
+                throw new RuntimeException("Game not found");
+            }
 
             LoadGameMessage message =
                     new LoadGameMessage(gameData.game());
@@ -56,7 +72,10 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(message));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            ErrorMessage error =
+                    new ErrorMessage(e.getMessage());
+
+            ctx.send(gson.toJson(error));
 
         }
     }
