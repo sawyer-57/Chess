@@ -8,6 +8,8 @@ import service.*;
 import dataaccess.*;
 import exception.*;
 
+import websocket.WebSocketHandler;
+
 public class Server {
 
     private final Javalin javalin;
@@ -33,6 +35,8 @@ public class Server {
             clearService
         );
 
+        WebSocketHandler wsHandler = new WebSocketHandler();
+
         javalin.post("/user", handler::register);
         javalin.post("/session", handler::login);
         javalin.delete("/session", handler::logout);
@@ -40,6 +44,12 @@ public class Server {
         javalin.post("/game", handler::createGame);
         javalin.put("/game", handler::joinGame);
         javalin.delete("/db", handler::clear);
+
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(wsHandler::onConnect);
+            ws.onClose(wsHandler::onClose);
+            ws.onMessage(wsHandler::onMessage);
+        });
 
         javalin.exception(UnauthorizedException.class, (e, ctx) -> {
             ctx.status(401);
