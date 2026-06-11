@@ -115,8 +115,55 @@ public class WebSocketHandler {
     private void makeMove(MakeMoveCommand command,
                           WsMessageContext ctx) {
 
-        System.out.println("MAKE_MOVE received");
+        try {
 
+            GameData gameData =
+                    gameDAO.getGame(command.getGameID());
+
+            var game = gameData.game();
+
+            game.makeMove(command.getMove());
+
+            gameData = new GameData(
+                    gameData.gameID(),
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    game);
+
+            gameDAO.updateGame(gameData);
+
+            LoadGameMessage loadMessage =
+                    new LoadGameMessage(game);
+
+            for (var entry : connections.getConnections().entrySet()) {
+                entry.getValue().send(
+                        gson.toJson(loadMessage));
+            }
+
+            NotificationMessage notification =
+                    new NotificationMessage("A move was made");
+
+            String mover =
+                    authDAO.getAuth(command.getAuthToken())
+                            .username();
+
+            for (var entry : connections.getConnections().entrySet()) {
+
+                if (!entry.getKey().equals(mover)) {
+
+                    entry.getValue().send(
+                            gson.toJson(notification));
+                }
+            }
+
+        } catch (Exception e) {
+
+            ErrorMessage error =
+                    new ErrorMessage(e.getMessage());
+
+            ctx.send(gson.toJson(error));
+        }
     }
 
 }
