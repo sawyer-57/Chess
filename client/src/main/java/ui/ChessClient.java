@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.ServerFacade;
 import model.GameData;
 
@@ -22,6 +23,7 @@ public class ChessClient {
     private String username;
     private Integer currentGameID;
     private String playerColor;
+    private ChessGame currentGame;
 
     private List<GameData> currentGames =
             new ArrayList<>();
@@ -279,7 +281,7 @@ public class ChessClient {
             wsClient.setSession(authToken, gameID);
             wsClient.sendConnect();
 
-            ChessBoardUI.drawBoard(color.equals("BLACK"));
+            ChessBoardUI.drawBoard(currentGame, color.equals("BLACK"));
         } catch (Exception e) {
             System.out.println("Unable to join game: " + e.getMessage());
         }
@@ -316,7 +318,7 @@ public class ChessClient {
 
             System.out.println("Observing game " + gameID);
 
-            ChessBoardUI.drawBoard(false);
+            ChessBoardUI.drawBoard(currentGame, false);
         } catch (Exception e) {
             System.out.println("Unable to observe game: " + e.getMessage());
         }

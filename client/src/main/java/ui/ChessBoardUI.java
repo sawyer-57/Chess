@@ -3,9 +3,8 @@ package ui;
 import chess.*;
 
 public class ChessBoardUI {
-    public static void drawBoard(
+    public static void drawBoard(ChessGame game,
             boolean blackPerspective) {
-        ChessGame game = new ChessGame();
         ChessBoard board = game.getBoard();
 
         int[] rows;
