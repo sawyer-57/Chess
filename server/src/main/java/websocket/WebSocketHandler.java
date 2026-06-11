@@ -48,8 +48,7 @@ public class WebSocketHandler {
 
         if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
             connect(command, ctx);
-        }
-        else if (command.getCommandType() ==
+        } else if (command.getCommandType() ==
                 UserGameCommand.CommandType.MAKE_MOVE) {
 
             MakeMoveCommand moveCommand =
@@ -107,11 +106,9 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(MakeMoveCommand command,
-                          WsMessageContext ctx) {
+    private void makeMove(MakeMoveCommand command, WsMessageContext ctx) {
 
         try {
-
             AuthData authData = authDAO.getAuth(command.getAuthToken());
             if (authData == null) {
                 throw new RuntimeException("Error: unauthorized");
@@ -120,30 +117,34 @@ public class WebSocketHandler {
             String mover = authData.username();
 
             GameData gameData = gameDAO.getGame(command.getGameID());
-            if (gameData == null) {
+            if (gameData == null || gameData.game() == null) {
                 throw new RuntimeException("Error: game not found");
             }
+
+            ChessGame game = gameData.game();
 
             if (!mover.equals(gameData.whiteUsername()) &&
                     !mover.equals(gameData.blackUsername())) {
                 throw new RuntimeException("Error: observers cannot move");
             }
 
-            ChessGame.TeamColor playerColor;
-
-            if (mover.equals(gameData.whiteUsername())) {
-                playerColor = ChessGame.TeamColor.WHITE;
-            } else {
-                playerColor = ChessGame.TeamColor.BLACK;
-            }
-
-            var game = gameData.game();
+            ChessGame.TeamColor color =
+                    mover.equals(gameData.whiteUsername())
+                            ? ChessGame.TeamColor.WHITE
+                            : ChessGame.TeamColor.BLACK;
 
             ChessPiece piece =
                     game.getBoard().getPiece(command.getMove().getStartPosition());
 
-            if (piece == null || piece.getTeamColor() != playerColor) {
+            if (piece == null || piece.getTeamColor() != color) {
                 throw new RuntimeException("Error: cannot move opponent piece");
+            }
+
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE) ||
+                    game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                    game.isInStalemate(ChessGame.TeamColor.WHITE) ||
+                    game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                throw new RuntimeException("Error: game is over");
             }
 
             try {
@@ -152,41 +153,58 @@ public class WebSocketHandler {
                 throw new RuntimeException("Error: invalid move");
             }
 
-            gameData = new GameData(
+            gameDAO.updateGame(new GameData(
                     gameData.gameID(),
                     gameData.whiteUsername(),
                     gameData.blackUsername(),
                     gameData.gameName(),
-                    game);
-
-            gameDAO.updateGame(gameData);
-
-            LoadGameMessage loadMessage =
-                    new LoadGameMessage(game);
+                    game
+            ));
 
             connections.broadcast(
                     command.getGameID(),
-                    gson.toJson(loadMessage)
+                    gson.toJson(new LoadGameMessage(game))
             );
 
-            NotificationMessage notification =
-                    new NotificationMessage(
-                            mover + " moved " +
-                                    command.getMove().getStartPosition() +
-                                    " to " +
-                                    command.getMove().getEndPosition()
-                    );
+            ChessGame.TeamColor opponent =
+                    (color == ChessGame.TeamColor.WHITE)
+                            ? ChessGame.TeamColor.BLACK
+                            : ChessGame.TeamColor.WHITE;
+
+            boolean checkmate = game.isInCheckmate(opponent);
+            boolean stalemate = game.isInStalemate(opponent);
+            boolean check = game.isInCheck(opponent);
 
             connections.broadcastExcept(
                     command.getGameID(),
                     mover,
-                    gson.toJson(notification)
+                    gson.toJson(new NotificationMessage(
+                            mover + " moved " +
+                                    command.getMove().getStartPosition() +
+                                    " to " +
+                                    command.getMove().getEndPosition()
+                    ))
             );
 
-        } catch (Exception e) {
+            if (checkmate) {
+                connections.broadcast(
+                        command.getGameID(),
+                        gson.toJson(new NotificationMessage("checkmate"))
+                );
+            } else if (stalemate) {
+                connections.broadcast(
+                        command.getGameID(),
+                        gson.toJson(new NotificationMessage("stalemate"))
+                );
+            } else if (check) {
+                connections.broadcast(
+                        command.getGameID(),
+                        gson.toJson(new NotificationMessage("check"))
+                );
+            }
 
+        } catch (Exception e) {
             ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
         }
     }
-
 }
