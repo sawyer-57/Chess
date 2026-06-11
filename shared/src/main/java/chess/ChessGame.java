@@ -11,12 +11,22 @@ import java.util.ArrayList;
  */
 public class ChessGame {
     private ChessBoard board; 
-    private TeamColor teamTurn; 
+    private TeamColor teamTurn;
+    private boolean resigned;
 
     public ChessGame() {
         board = new ChessBoard(); 
         board.resetBoard(); 
-        teamTurn = TeamColor.WHITE; 
+        teamTurn = TeamColor.WHITE;
+        resigned = false;
+    }
+
+    public boolean isResigned() {
+        return resigned;
+    }
+
+    public void resign() {
+        this.resigned = true;
     }
 
     /**

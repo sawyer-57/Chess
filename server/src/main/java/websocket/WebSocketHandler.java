@@ -55,6 +55,10 @@ public class WebSocketHandler {
                     gson.fromJson(message, MakeMoveCommand.class);
 
             makeMove(moveCommand, ctx);
+        } else if (command.getCommandType() ==
+                UserGameCommand.CommandType.RESIGN) {
+
+            resign(command, ctx);
         }
 
         System.out.println("Received command: "
@@ -122,6 +126,11 @@ public class WebSocketHandler {
             }
 
             ChessGame game = gameData.game();
+
+            if (game.isResigned()) {
+                ctx.send(gson.toJson(new ErrorMessage("Error: game is over")));
+                return;
+            }
 
             if (!mover.equals(gameData.whiteUsername()) &&
                     !mover.equals(gameData.blackUsername())) {
@@ -202,6 +211,51 @@ public class WebSocketHandler {
                         gson.toJson(new NotificationMessage("check"))
                 );
             }
+
+        } catch (Exception e) {
+            ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
+        }
+    }
+
+    private void resign(UserGameCommand command, WsMessageContext ctx) {
+        try {
+            AuthData authData = authDAO.getAuth(command.getAuthToken());
+            if (authData == null) {
+                throw new RuntimeException("Error: unauthorized");
+            }
+
+            String username = authData.username();
+
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if (gameData == null || gameData.game() == null) {
+                throw new RuntimeException("Error: game not found");
+            }
+
+            if (!username.equals(gameData.whiteUsername()) &&
+                    !username.equals(gameData.blackUsername())) {
+                throw new RuntimeException("Error: observer cannot resign");
+            }
+
+            ChessGame game = gameData.game();
+
+            if (game.isResigned()) {
+                throw new RuntimeException("Error: game is over");
+            }
+
+            game.resign();
+
+            gameDAO.updateGame(new GameData(
+                    gameData.gameID(),
+                    gameData.whiteUsername(),
+                    gameData.blackUsername(),
+                    gameData.gameName(),
+                    game
+            ));
+
+            connections.broadcast(
+                    command.getGameID(),
+                    gson.toJson(new NotificationMessage(username + " resigned"))
+            );
 
         } catch (Exception e) {
             ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
