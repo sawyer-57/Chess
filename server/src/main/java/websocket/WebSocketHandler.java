@@ -167,7 +167,7 @@ public class WebSocketHandler {
 
         } catch (Exception e) {
 
-            System.out.println("WebSocket error ignored: " + e.getMessage());
+            ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
         }
     }
 
