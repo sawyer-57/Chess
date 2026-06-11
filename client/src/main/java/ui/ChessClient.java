@@ -186,6 +186,9 @@ public class ChessClient {
         try {
             server.logout(authToken);
             authToken = null;
+
+            wsClient.close();
+
             System.out.println("Logged out");
         } catch (Exception e) {
             System.out.println("Logout failed: " + e.getMessage());
@@ -350,7 +353,9 @@ public class ChessClient {
     }
 
     private void resign() {
-        if (currentGameID == null) return;
+        if (currentGameID == null) {
+            return;
+        }
 
         System.out.print("Are you sure you want to resign? (yes/no): ");
         Scanner scanner = new Scanner(System.in);
@@ -371,7 +376,9 @@ public class ChessClient {
     }
 
     private void leaveGame() {
-        if (currentGameID == null) return;
+        if (currentGameID == null) {
+            return;
+        }
 
         UserGameCommand cmd = new UserGameCommand(
                 UserGameCommand.CommandType.LEAVE,

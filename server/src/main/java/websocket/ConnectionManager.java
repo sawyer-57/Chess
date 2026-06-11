@@ -17,7 +17,9 @@ public class ConnectionManager {
     }
 
     public void remove(Integer gameID, String username) {
-        if (!connections.containsKey(gameID)) return;
+        if (!connections.containsKey(gameID)) {
+            return;
+        }
 
         ConcurrentHashMap<String, WsContext> gameMap = connections.get(gameID);
         gameMap.remove(username);
@@ -27,12 +29,10 @@ public class ConnectionManager {
         }
     }
 
-    public ConcurrentHashMap<String, WsContext> getGameConnections(Integer gameID) {
-        return connections.getOrDefault(gameID, new ConcurrentHashMap<>());
-    }
-
     public void broadcast(Integer gameID, String message) {
-        if (!connections.containsKey(gameID)) return;
+        if (!connections.containsKey(gameID)) {
+            return;
+        }
 
         for (WsContext ctx : connections.get(gameID).values()) {
             try {
@@ -43,7 +43,9 @@ public class ConnectionManager {
     }
 
     public void broadcastExcept(Integer gameID, String username, String message) {
-        if (!connections.containsKey(gameID)) return;
+        if (!connections.containsKey(gameID)) {
+            return;
+        }
 
         for (var entry : connections.get(gameID).entrySet()) {
             if (!entry.getKey().equals(username)) {
