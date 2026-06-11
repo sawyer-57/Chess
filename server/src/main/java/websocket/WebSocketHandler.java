@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import io.javalin.websocket.*;
 
 import websocket.commands.UserGameCommand;
+import websocket.commands.MakeMoveCommand;
 
 import model.GameData;
 import dataaccess.GameDAO;
@@ -44,6 +45,14 @@ public class WebSocketHandler {
 
         if (command.getCommandType() == UserGameCommand.CommandType.CONNECT) {
             connect(command, ctx);
+        }
+        else if (command.getCommandType() ==
+                UserGameCommand.CommandType.MAKE_MOVE) {
+
+            MakeMoveCommand moveCommand =
+                    gson.fromJson(message, MakeMoveCommand.class);
+
+            makeMove(moveCommand, ctx);
         }
 
         System.out.println("Received command: "
@@ -101,6 +110,13 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(error));
 
         }
+    }
+
+    private void makeMove(MakeMoveCommand command,
+                          WsMessageContext ctx) {
+
+        System.out.println("MAKE_MOVE received");
+
     }
 
 }
