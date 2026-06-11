@@ -71,11 +71,6 @@ public class WebSocketHandler {
                 throw new RuntimeException("Unauthorized");
             }
 
-            String username =
-                    authData.username();
-
-            connections.add(username, ctx);
-
             GameData gameData =
                     gameDAO.getGame(command.getGameID());
 
@@ -83,31 +78,28 @@ public class WebSocketHandler {
                 throw new RuntimeException("Game not found");
             }
 
+            String username =
+                    authData.username();
+
+            connections.remove(command.getGameID(), username);
+            connections.add(command.getGameID(), username, ctx);
+
             LoadGameMessage message =
                     new LoadGameMessage(gameData.game());
 
             ctx.send(gson.toJson(message));
 
-            NotificationMessage notification =
-                    new NotificationMessage(
-                            username + " joined the game");
+            NotificationMessage joinNotification =
+                    new NotificationMessage(username + " joined the game");
 
-            for (var entry : connections.getConnections().entrySet()) {
-
-                String otherUsername = entry.getKey();
-
-                if (!otherUsername.equals(username)) {
-
-                    entry.getValue().send(
-                            gson.toJson(notification));
-                }
-            }
+            connections.broadcastExcept(
+                    command.getGameID(),
+                    username,
+                    gson.toJson(joinNotification)
+            );
 
         } catch (Exception e) {
-            ErrorMessage error =
-                    new ErrorMessage(e.getMessage());
-
-            ctx.send(gson.toJson(error));
+            ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
 
         }
     }
@@ -117,12 +109,30 @@ public class WebSocketHandler {
 
         try {
 
-            GameData gameData =
-                    gameDAO.getGame(command.getGameID());
+            AuthData authData = authDAO.getAuth(command.getAuthToken());
+            if (authData == null) {
+                throw new RuntimeException("Error: unauthorized");
+            }
+
+            String mover = authData.username();
+
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if (gameData == null) {
+                throw new RuntimeException("Error: game not found");
+            }
+
+            if (!mover.equals(gameData.whiteUsername()) &&
+                    !mover.equals(gameData.blackUsername())) {
+                throw new RuntimeException("Error: observers cannot move");
+            }
 
             var game = gameData.game();
 
-            game.makeMove(command.getMove());
+            try {
+                game.makeMove(command.getMove());
+            } catch (Exception e) {
+                throw new RuntimeException("Error: invalid move");
+            }
 
             gameData = new GameData(
                     gameData.gameID(),
@@ -136,33 +146,28 @@ public class WebSocketHandler {
             LoadGameMessage loadMessage =
                     new LoadGameMessage(game);
 
-            for (var entry : connections.getConnections().entrySet()) {
-                entry.getValue().send(
-                        gson.toJson(loadMessage));
-            }
+            connections.broadcast(
+                    command.getGameID(),
+                    gson.toJson(loadMessage)
+            );
 
             NotificationMessage notification =
-                    new NotificationMessage("A move was made");
+                    new NotificationMessage(
+                            mover + " moved " +
+                                    command.getMove().getStartPosition() +
+                                    " to " +
+                                    command.getMove().getEndPosition()
+                    );
 
-            String mover =
-                    authDAO.getAuth(command.getAuthToken())
-                            .username();
-
-            for (var entry : connections.getConnections().entrySet()) {
-
-                if (!entry.getKey().equals(mover)) {
-
-                    entry.getValue().send(
-                            gson.toJson(notification));
-                }
-            }
+            connections.broadcastExcept(
+                    command.getGameID(),
+                    mover,
+                    gson.toJson(notification)
+            );
 
         } catch (Exception e) {
 
-            ErrorMessage error =
-                    new ErrorMessage(e.getMessage());
-
-            ctx.send(gson.toJson(error));
+            System.out.println("WebSocket error ignored: " + e.getMessage());
         }
     }
 
