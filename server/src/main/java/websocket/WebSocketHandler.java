@@ -18,12 +18,15 @@ import dataaccess.MySqlAuthDAO;
 
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler {
 
     private final Gson gson = new Gson();
     private final GameDAO gameDAO = new MySqlGameDAO();
     private final AuthDAO authDAO = new MySqlAuthDAO();
+    private final ConnectionManager connections =
+            new ConnectionManager();
 
     public void onConnect(WsConnectContext ctx) {
         System.out.println("WebSocket connected");
@@ -59,6 +62,11 @@ public class WebSocketHandler {
                 throw new RuntimeException("Unauthorized");
             }
 
+            String username =
+                    authData.username();
+
+            connections.add(username, ctx);
+
             GameData gameData =
                     gameDAO.getGame(command.getGameID());
 
@@ -70,6 +78,21 @@ public class WebSocketHandler {
                     new LoadGameMessage(gameData.game());
 
             ctx.send(gson.toJson(message));
+
+            NotificationMessage notification =
+                    new NotificationMessage(
+                            username + " joined the game");
+
+            for (var entry : connections.getConnections().entrySet()) {
+
+                String otherUsername = entry.getKey();
+
+                if (!otherUsername.equals(username)) {
+
+                    entry.getValue().send(
+                            gson.toJson(notification));
+                }
+            }
 
         } catch (Exception e) {
             ErrorMessage error =
