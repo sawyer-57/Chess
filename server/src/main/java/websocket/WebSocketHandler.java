@@ -21,6 +21,9 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
 
+import chess.ChessGame;
+import chess.ChessPiece;
+
 public class WebSocketHandler {
 
     private final Gson gson = new Gson();
@@ -126,7 +129,22 @@ public class WebSocketHandler {
                 throw new RuntimeException("Error: observers cannot move");
             }
 
+            ChessGame.TeamColor playerColor;
+
+            if (mover.equals(gameData.whiteUsername())) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else {
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
+
             var game = gameData.game();
+
+            ChessPiece piece =
+                    game.getBoard().getPiece(command.getMove().getStartPosition());
+
+            if (piece == null || piece.getTeamColor() != playerColor) {
+                throw new RuntimeException("Error: cannot move opponent piece");
+            }
 
             try {
                 game.makeMove(command.getMove());
