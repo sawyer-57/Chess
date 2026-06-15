@@ -46,9 +46,9 @@ public class Server {
         javalin.delete("/db", handler::clear);
 
         javalin.ws("/ws", ws -> {
-            ws.onConnect(wsHandler::onConnect);
-            ws.onClose(wsHandler::onClose);
-            ws.onMessage(wsHandler::onMessage);
+            ws.onConnect(ctx -> wsHandler.onConnect(ctx));
+            ws.onMessage(ctx -> wsHandler.onMessage(ctx));
+            ws.onClose(ctx -> wsHandler.onClose(ctx));
         });
 
         javalin.exception(UnauthorizedException.class, (e, ctx) -> {

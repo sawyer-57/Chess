@@ -98,4 +98,54 @@ public class ChessBoardUI {
 
         System.out.println();
     }
+
+    public static void drawBoardWithHighlights(
+            ChessGame game,
+            boolean blackPerspective,
+            java.util.Collection<ChessPosition> highlights) {
+
+        ChessBoard board = game.getBoard();
+
+        int[] rows;
+        char[] cols;
+
+        if (blackPerspective) {
+            rows = new int[]{1,2,3,4,5,6,7,8};
+            cols = new char[]{'h','g','f','e','d','c','b','a'};
+        } else {
+            rows = new int[]{8,7,6,5,4,3,2,1};
+            cols = new char[]{'a','b','c','d','e','f','g','h'};
+        }
+
+        printColumnLabels(cols);
+
+        for (int row : rows) {
+            System.out.print(row + " ");
+
+            for (char col : cols) {
+                int colIndex = col - 'a' + 1;
+                ChessPosition pos = new ChessPosition(row, colIndex);
+
+                boolean isHighlight = highlights.contains(pos);
+
+                if (isHighlight) {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_YELLOW);
+                } else {
+                    boolean isLight = (row + colIndex) % 2 != 0;
+                    System.out.print(isLight
+                            ? EscapeSequences.SET_BG_COLOR_WHITE
+                            : EscapeSequences.SET_BG_COLOR_DARK_GREY);
+                }
+
+                ChessPiece piece = board.getPiece(pos);
+                System.out.print(getPieceString(piece));
+
+                System.out.print(EscapeSequences.RESET_BG_COLOR);
+            }
+
+            System.out.println(" " + row);
+        }
+
+        printColumnLabels(cols);
+    }
 }

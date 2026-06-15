@@ -4,9 +4,7 @@ import chess.ChessGame;
 import client.ServerFacade;
 import model.GameData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import websocket.WebSocketClient;
 import websocket.commands.MakeMoveCommand;
@@ -97,6 +95,10 @@ public class ChessClient {
             this.username = result.username();
             this.authToken = result.authToken();
 
+            wsClient.connectIfNeeded(
+                    "ws://localhost:8000/ws",
+                    this);
+
             System.out.println("Registered successfully");
 
             postlogin(scanner);
@@ -120,7 +122,6 @@ public class ChessClient {
             this.username = result.username();
             this.authToken = result.authToken();
 
-            wsClient.connect("ws://localhost:8000/ws");
             wsClient.setUI(this);
 
             System.out.println("Logged in successfully");
@@ -270,10 +271,8 @@ public class ChessClient {
             currentGameID = gameID;
             playerColor = color;
 
+            wsClient.connect("ws://localhost:8000/ws");
             wsClient.setSession(authToken, gameID);
-
-            wsClient.connectIfNeeded("ws://localhost:8000/ws", this);
-
             wsClient.sendConnect();
 
             gameLoop(scanner);
@@ -308,8 +307,12 @@ public class ChessClient {
             currentGameID = gameID;
             playerColor = "OBSERVER";
 
+            wsClient.connect("ws://localhost:8000/ws");
             wsClient.setSession(authToken, gameID);
             wsClient.sendConnect();
+
+            playerColor = "OBSERVER";
+            gameLoop(scanner);
 
             System.out.println("Observing game " + gameID);
 
@@ -326,22 +329,63 @@ public class ChessClient {
                 return;
             }
 
-            System.out.print("start row: ");
-            int sr = Integer.parseInt(scanner.nextLine());
+            int sr, sc, er, ec;
 
-            System.out.print("start col: ");
-            int sc = Integer.parseInt(scanner.nextLine());
+            try {
+                System.out.print("start row: ");
+                sr = Integer.parseInt(scanner.nextLine());
 
-            System.out.print("end row: ");
-            int er = Integer.parseInt(scanner.nextLine());
+                System.out.print("start col: ");
+                sc = Integer.parseInt(scanner.nextLine());
 
-            System.out.print("end col: ");
-            int ec = Integer.parseInt(scanner.nextLine());
+                System.out.print("end row: ");
+                er = Integer.parseInt(scanner.nextLine());
+
+                System.out.print("end col: ");
+                ec = Integer.parseInt(scanner.nextLine());
+
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input: please enter numbers only (1–8).");
+                return;
+            }
+
+            ChessPiece.PieceType newPiece = null;
+
+            if (er == 8 || er == 1) {
+                ChessPosition position = new ChessPosition(sr, sc);
+                ChessPiece piece = currentGame.getBoard().getPiece(position);
+                if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                    System.out.print("promotion piece: ");
+                    String prom = scanner.nextLine();
+                    switch(prom.toUpperCase()) {
+                        case "QUEEN":
+                            newPiece = ChessPiece.PieceType.QUEEN;
+                            break;
+
+                        case "ROOK":
+                            newPiece = ChessPiece.PieceType.ROOK;
+                            break;
+
+                        case "KNIGHT":
+                            newPiece = ChessPiece.PieceType.KNIGHT;
+                            break;
+
+                        case "BISHOP":
+                            newPiece = ChessPiece.PieceType.BISHOP;
+                            break;
+
+                        default:
+                            System.out.print("Invalid Promotion Piece");
+
+                    }
+
+                }
+            }
 
             ChessMove move = new ChessMove(
                     new ChessPosition(sr, sc),
                     new ChessPosition(er, ec),
-                    null
+                    newPiece
             );
 
             MakeMoveCommand cmd = new MakeMoveCommand(
@@ -420,12 +464,17 @@ public class ChessClient {
 
             var moves = currentGame.validMoves(pos);
 
-            System.out.println("Legal moves:");
+            Set<ChessPosition> highlights = new HashSet<>();
+
             for (ChessMove move : moves) {
-                System.out.println(move.getEndPosition().getRow() +
-                        "," +
-                        move.getEndPosition().getColumn());
+                highlights.add(move.getEndPosition());
             }
+
+            ChessBoardUI.drawBoardWithHighlights(
+                    currentGame,
+                    playerColor.equals("BLACK"),
+                    highlights
+            );
 
         } catch (Exception e) {
             System.out.println("Highlight failed: " + e.getMessage());

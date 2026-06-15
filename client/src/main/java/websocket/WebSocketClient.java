@@ -3,23 +3,24 @@ package websocket;
 import com.google.gson.Gson;
 import websocket.commands.UserGameCommand;
 
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.EndpointConfig;
+import jakarta.websocket.MessageHandler;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
+
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.WebSocket;
-import java.util.concurrent.CompletionStage;
 
 import websocket.messages.ServerMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ErrorMessage;
 import ui.ChessClient;
-import chess.ChessGame;
 
-import ui.ChessBoardUI;
+public class WebSocketClient extends Endpoint {
 
-public class WebSocketClient {
-
-    private WebSocket socket;
+    private Session session;
     private final Gson gson = new Gson();
 
     private String authToken;
@@ -32,7 +33,8 @@ public class WebSocketClient {
     }
 
     public void connectIfNeeded(String url, ChessClient ui) {
-        if (socket != null) {
+
+        if (session != null && session.isOpen()) {
             return;
         }
 
@@ -41,65 +43,91 @@ public class WebSocketClient {
     }
 
     public void connect(String serverUrl) {
-        HttpClient client = HttpClient.newHttpClient();
+        try {
 
-        socket = client.newWebSocketBuilder()
-                .buildAsync(URI.create(serverUrl), new WebSocket.Listener() {
+            WebSocketContainer container =
+                    ContainerProvider.getWebSocketContainer();
 
-                    @Override
-                    public void onOpen(WebSocket webSocket) {
-                        System.out.println("WS connected");
-                        WebSocket.Listener.super.onOpen(webSocket);
-                    }
+            session =
+                    container.connectToServer(
+                            this,
+                            URI.create(serverUrl));
 
-                    @Override
-                    public CompletionStage<?> onText(WebSocket webSocket,
-                                                     CharSequence data,
-                                                     boolean last) {
+            session.setMaxIdleTimeout(0);
 
-                        ServerMessage msg = gson.fromJson(data.toString(), ServerMessage.class);
+            System.out.println("WS connected");
 
-                        switch (msg.getServerMessageType()) {
+            session.addMessageHandler(
+                    new MessageHandler.Whole<String>() {
 
-                            case LOAD_GAME -> {
-                                LoadGameMessage load =
-                                        gson.fromJson(data.toString(), LoadGameMessage.class);
+                        @Override
+                        public void onMessage(String data) {
 
-                                System.out.println("\n[BOARD UPDATE]");
+                            ServerMessage msg =
+                                    gson.fromJson(
+                                            data,
+                                            ServerMessage.class);
 
-                                if (ui != null) {
-                                    ui.updateGame(load.getGame());
+                            switch (msg.getServerMessageType()) {
+
+                                case LOAD_GAME -> {
+                                    LoadGameMessage load =
+                                            gson.fromJson(
+                                                    data,
+                                                    LoadGameMessage.class);
+
+                                    System.out.println("\n[BOARD UPDATE]");
+
+                                    if (ui != null) {
+                                        ui.updateGame(load.getGame());
+                                    }
+                                }
+
+                                case NOTIFICATION -> {
+                                    NotificationMessage note =
+                                            gson.fromJson(
+                                                    data,
+                                                    NotificationMessage.class);
+
+                                    System.out.println(
+                                            "\n[NOTIFICATION] "
+                                                    + note.getMessage());
+                                }
+
+                                case ERROR -> {
+                                    ErrorMessage err =
+                                            gson.fromJson(
+                                                    data,
+                                                    ErrorMessage.class);
+
+                                    System.out.println(
+                                            "\n[ERROR] "
+                                                    + err.getErrorMessage());
                                 }
                             }
-
-                            case NOTIFICATION -> {
-                                NotificationMessage note =
-                                        gson.fromJson(data.toString(), NotificationMessage.class);
-
-                                System.out.println("\n[NOTIFICATION] " + note.getMessage());
-                            }
-
-                            case ERROR -> {
-                                ErrorMessage err =
-                                        gson.fromJson(data.toString(), ErrorMessage.class);
-
-                                System.out.println("\n[ERROR] " + err.getErrorMessage());
-                            }
                         }
+                    });
 
-                        return WebSocket.Listener.super.onText(webSocket, data, last);
-                    }
-
-                }).join();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void send(Object command) {
-        if (socket == null) {
-            throw new IllegalStateException("WebSocket not connected");
-        }
+        try {
 
-        String json = gson.toJson(command);
-        socket.sendText(json, true);
+            if (session == null) {
+                throw new IllegalStateException(
+                        "WebSocket not connected");
+            }
+
+            String json = gson.toJson(command);
+
+            session.getBasicRemote().sendText(json);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setSession(String authToken, Integer gameID) {
@@ -118,6 +146,27 @@ public class WebSocketClient {
     }
 
     public void close() {
-        socket.sendClose(WebSocket.NORMAL_CLOSURE, "bye");
+        try {
+            if (session != null) {
+                session.close();
+                session = null;
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void onOpen(Session session,
+                       EndpointConfig config) {
+        this.session = session;
+    }
+
+    @Override
+    public void onClose(Session session,
+                        jakarta.websocket.CloseReason reason) {
+
+        System.out.println("WS closed: " + reason);
+
+        this.session = null;
     }
 }

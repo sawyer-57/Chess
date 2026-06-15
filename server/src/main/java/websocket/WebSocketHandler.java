@@ -32,8 +32,9 @@ public class WebSocketHandler {
     private final ConnectionManager connections =
             new ConnectionManager();
 
-    public void onConnect(WsConnectContext ctx) {
-        System.out.println("WebSocket connected");
+    public void onConnect(io.javalin.websocket.WsContext ctx) {
+        ctx.enableAutomaticPings();
+        System.out.println("WS connected");
     }
 
     public void onClose(WsCloseContext ctx) {
@@ -92,6 +93,16 @@ public class WebSocketHandler {
             String username =
                     authData.username();
 
+            String role;
+
+            if (username.equals(gameData.whiteUsername())) {
+                role = "white";
+            } else if (username.equals(gameData.blackUsername())) {
+                role = "black";
+            } else {
+                role = "observer";
+            }
+
             connections.remove(command.getGameID(), username);
             connections.add(command.getGameID(), username, ctx);
 
@@ -101,7 +112,7 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(message));
 
             NotificationMessage joinNotification =
-                    new NotificationMessage(username + " joined the game");
+                    new NotificationMessage(username + " joined the game as " + role);
 
             connections.broadcastExcept(
                     command.getGameID(),
@@ -200,20 +211,31 @@ public class WebSocketHandler {
                     ))
             );
 
+            String opponentUsername =
+                    (opponent == ChessGame.TeamColor.WHITE)
+                            ? gameData.whiteUsername()
+                            : gameData.blackUsername();
+
             if (checkmate) {
                 connections.broadcast(
                         command.getGameID(),
-                        gson.toJson(new NotificationMessage("checkmate"))
+                        gson.toJson(new NotificationMessage(
+                                opponentUsername + " is in checkmate"
+                        ))
                 );
             } else if (stalemate) {
                 connections.broadcast(
                         command.getGameID(),
-                        gson.toJson(new NotificationMessage("stalemate"))
+                        gson.toJson(new NotificationMessage(
+                                opponentUsername + " is in stalemate"
+                        ))
                 );
             } else if (check) {
                 connections.broadcast(
                         command.getGameID(),
-                        gson.toJson(new NotificationMessage("check"))
+                        gson.toJson(new NotificationMessage(
+                                opponentUsername + " is in check"
+                        ))
                 );
             }
 
