@@ -210,7 +210,7 @@ public class ServerFacade {
 
         wsClient.setSession(authToken, gameID);
 
-        wsClient.connect("ws://localhost:8080/ws");
+        wsClient.connect("ws://localhost:8000/ws");
 
         wsClient.sendConnect();
     }

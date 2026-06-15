@@ -120,7 +120,7 @@ public class ChessClient {
             this.username = result.username();
             this.authToken = result.authToken();
 
-            wsClient.connect("ws://localhost:8080/ws");
+            wsClient.connect("ws://localhost:8000/ws");
             wsClient.setUI(this);
 
             System.out.println("Logged in successfully");
@@ -260,15 +260,20 @@ public class ChessClient {
 
             currentGameID = gameID;
 
-            server.joinGame(
-                    authToken,
-                    color,
-                    gameID);
+            try {
+                server.joinGame(authToken, color, gameID);
+            } catch (Exception e) {
+                System.out.println("Unable to join game: " + e.getMessage());
+                return;
+            }
 
             currentGameID = gameID;
             playerColor = color;
 
             wsClient.setSession(authToken, gameID);
+
+            wsClient.connectIfNeeded("ws://localhost:8000/ws", this);
+
             wsClient.sendConnect();
 
             gameLoop(scanner);
@@ -308,7 +313,7 @@ public class ChessClient {
 
             System.out.println("Observing game " + gameID);
 
-            ChessBoardUI.drawBoard(currentGame, false);
+            System.out.println("Waiting for server to send board update...");
         } catch (Exception e) {
             System.out.println("Unable to observe game: " + e.getMessage());
         }
@@ -478,6 +483,11 @@ public class ChessClient {
     }
 
     public void updateGame(ChessGame game) {
+        if (game == null) {
+            System.out.println("[WARN] Received null game from server");
+            return;
+        }
+
         this.currentGame = game;
 
         boolean blackView =

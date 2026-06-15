@@ -12,6 +12,7 @@ import websocket.messages.ServerMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ErrorMessage;
+import ui.ChessClient;
 import chess.ChessGame;
 
 import ui.ChessBoardUI;
@@ -26,9 +27,17 @@ public class WebSocketClient {
 
     private ui.ChessClient ui;
 
-
     public void setUI(ui.ChessClient ui) {
         this.ui = ui;
+    }
+
+    public void connectIfNeeded(String url, ChessClient ui) {
+        if (socket != null) {
+            return;
+        }
+
+        setUI(ui);
+        connect(url);
     }
 
     public void connect(String serverUrl) {

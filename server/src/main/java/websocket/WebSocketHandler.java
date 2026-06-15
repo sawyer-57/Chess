@@ -84,8 +84,9 @@ public class WebSocketHandler {
             GameData gameData =
                     gameDAO.getGame(command.getGameID());
 
-            if (gameData == null) {
-                throw new RuntimeException("Game not found");
+            if (gameData == null || gameData.game() == null) {
+                ctx.send(gson.toJson(new ErrorMessage("Game not initialized")));
+                return;
             }
 
             String username =

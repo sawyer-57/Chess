@@ -67,11 +67,22 @@ public class MySqlGameDAO implements GameDAO {
 
             if (rs.next()) {
 
-                ChessGame game =
-                        gson.fromJson(
-                                rs.getString("game"),
-                                ChessGame.class
-                        );
+                String json = rs.getString("game");
+
+                if (json == null || json.isBlank()) {
+                    throw new DataAccessException("Game data missing for gameID " + gameID);
+                }
+
+                ChessGame game;
+                try {
+                    game = gson.fromJson(json, ChessGame.class);
+                } catch (Exception e) {
+                    throw new DataAccessException("Failed to deserialize ChessGame: " + e.getMessage());
+                }
+
+                if (game == null) {
+                    throw new DataAccessException("ChessGame deserialized as null for gameID " + gameID);
+                }
 
                 return new GameData(
                         rs.getInt("gameID"),
@@ -147,6 +158,10 @@ public class MySqlGameDAO implements GameDAO {
             stmt.setString(1, game.whiteUsername());
             stmt.setString(2, game.blackUsername());
             stmt.setString(3, game.gameName());
+
+            if (game.game() == null) {
+                throw new DataAccessException("Cannot update DB: ChessGame is null");
+            }
 
             String gameJson =
                     gson.toJson(game.game());

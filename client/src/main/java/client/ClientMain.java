@@ -13,7 +13,7 @@ public class ClientMain {
 
 
         ServerFacade server =
-                new ServerFacade(8080);
+                new ServerFacade(8000);
         ChessClient client =
                 new ChessClient(server);
         client.run();
